@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CI/CD Pricing Calculator · Codemagic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --bg-page: #111418;
+      --bg-card: #1a1d21;
+      --bg-input: #14171b;
+      --accent: #0052ff;
+      --accent-hover: #1a63ff;
+      --color-text-primary: #ffffff;
+      --color-text-secondary: #94a3b8;
+      --color-text-tertiary: #64748b;
+      --color-text-success: #3ee89a;
+      --color-background-primary: var(--bg-card);
+      --color-background-secondary: #22262c;
+      --color-background-success: rgba(62, 232, 154, 0.14);
+      --color-border-tertiary: #2a3038;
+      --color-border-secondary: #3d4550;
+      --border-radius-md: 8px;
+      --border-radius-lg: 10px;
+      --chart-grid: #2a3038;
+      --chart-muted: #9daab8;
+      --chart-axis: #c5d0dc;
+      --chart-marker: #8b98a8;
+      --provider-codemagic: #3ee89a;
+      --provider-github: #a8b8cc;
+      --provider-bitrise: #c49bff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 32px 20px 56px;
+      font-family: var(--font-sans);
+      background: var(--bg-page);
+      color: var(--color-text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 1040px; margin: 0 auto; }
+    h1 { font-size: 26px; font-weight: 600; margin: 0 0 16px; letter-spacing: -0.03em; }
+    .subtitle { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 24px; line-height: 1.5; }
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      padding: 22px 26px;
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 28px 32px;
+      align-items: start;
+    }
+    .grid-col { min-width: 0; }
+    .col-heading {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      letter-spacing: -0.03em;
+      margin: 0 0 20px;
+    }
+    .grid-col .field:last-child { margin-bottom: 0; }
+    .field { margin-bottom: 22px; }
+    .field-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+    .field-title { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .field-label {
+      font-size: 15px;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+    }
+    .field-sublabel {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      font-weight: 400;
+      line-height: 1.35;
+    }
+    .field-hint {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      font-weight: 400;
+    }
+    .field-value {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      min-width: 80px;
+      text-align: right;
+      flex-shrink: 0;
+      letter-spacing: -0.02em;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #2a3038;
+      border-radius: 3px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--bg-card);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--bg-card);
+    }
+    input[type="range"]::-moz-range-track {
+      height: 6px;
+      background: #2a3038;
+      border-radius: 3px;
+    }
+    select {
+      width: 100%;
+      height: 38px;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-border-tertiary);
+      padding: 0 12px;
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--bg-input);
+      color: var(--color-text-primary);
+    }
+    select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 24px; }
+    .toolbar-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .machine-picker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .machine-picker select {
+      height: 38px;
+      min-width: 118px;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-border-tertiary);
+      padding: 0 12px;
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--bg-card);
+      color: var(--color-text-primary);
+    }
+    .toolbar-label { font-size: 13px; color: var(--color-text-secondary); font-weight: 500; margin-right: 4px; }
+    .provider-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-border-tertiary);
+      background: var(--bg-card);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      font-family: inherit;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .provider-btn.active { border-width: 2px; }
+    .provider-swatch { width: 10px; height: 10px; border-radius: 2px; }
+    .calc-btn {
+      margin-left: auto;
+      padding: 10px 24px;
+      border-radius: var(--border-radius-md);
+      background: var(--accent);
+      color: #fff;
+      font-weight: 500;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .calc-btn:hover { background: var(--accent-hover); }
+    .cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .card {
+      padding: 16px 18px 16px 20px;
+      border-radius: var(--border-radius-lg);
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-tertiary);
+      min-width: 160px;
+      flex: 1;
+      position: relative;
+    }
+    .card.is-lowest {
+      border-color: transparent;
+      box-shadow: inset 3px 0 0 var(--color-text-success);
+    }
+    .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .card-name { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
+    .card-badge {
+      font-size: 10px; font-weight: 600; padding: 3px 8px;
+      border-radius: var(--border-radius-md);
+      background: var(--color-background-success);
+      color: var(--color-text-success);
+      margin-left: auto;
+    }
+    .card-cost { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+    .card-cost.na { font-size: 22px; color: var(--color-text-tertiary); }
+    .card-period {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      margin-left: 3px;
+    }
+    .card-plan { font-size: 11px; color: var(--color-text-tertiary); margin-top: 4px; line-height: 1.4; }
+    .chart-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      margin-top: 14px;
+      padding: 0 4px;
+    }
+    .meta {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      text-align: right;
+      line-height: 1.4;
+    }
+    .legend {
+      display: flex;
+      gap: 20px;
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-usage {
+      width: 2px;
+      height: 12px;
+      border-radius: 1px;
+      background: var(--color-border-secondary);
+    }
+    .legend-future {
+      width: 14px;
+      height: 0;
+      border-top: 2px dashed var(--color-text-tertiary);
+    }
+    .chart-box {
+      background: var(--bg-card);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      padding: 20px 12px 16px 8px;
+    }
+    #chart { width: 100%; height: 400px; display: block; }
+    .disclaimer { font-size: 11px; color: var(--color-text-tertiary); margin-top: 16px; line-height: 1.65; padding: 0 4px; }
+    @media (max-width: 640px) {
+      .chart-footer { flex-direction: column; align-items: flex-start; }
+      .meta { text-align: left; }
+    }
+    #results { display: none; }
+    #results.visible { display: block; }
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: var(--bg-card);
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      padding: 12px 14px;
+      font-size: 12px;
+      line-height: 1.5;
+      max-width: 320px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      z-index: 100;
+      display: none;
+      color: var(--color-text-primary);
+    }
+    .tooltip .tip-muted { color: var(--color-text-tertiary); font-size: 11px; }
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: 1fr; gap: 32px; }
+      .grid-col .field:last-child { margin-bottom: 22px; }
+    }
+    @media (max-width: 640px) {
+      .toolbar-actions { margin-left: 0; width: 100%; }
+      .machine-picker { flex: 1; }
+      .machine-picker select { flex: 1; min-width: 0; }
+      .calc-btn { flex: 1; min-width: 140px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>CI/CD Pricing Calculator</h1>
+
+    <div class="panel grid" id="inputs">
+      <div class="grid-col">
+        <h2 class="col-heading">Team</h2>
+        <div class="field" data-key="teamSize">
+          <div class="field-header">
+            <span class="field-label">Team members</span>
+            <span class="field-value" id="teamSize-val">30</span>
+          </div>
+          <input type="range" id="teamSize" min="1" max="100" value="30" />
+        </div>
+        <div class="field" data-key="concurrencies">
+          <div class="field-header">
+            <div class="field-title">
+              <span class="field-label">Concurrencies</span>
+            </div>
+            <span class="field-value" id="concurrencies-val">20</span>
+          </div>
+          <input type="range" id="concurrencies" min="1" max="100" value="10" />
+        </div>
+      </div>
+
+      <div class="grid-col">
+        <h2 class="col-heading">macOS builds</h2>
+        <div class="field">
+          <div class="field-header">
+            <span class="field-label">Daily builds per developer</span>
+            <span class="field-value" id="macBuildsPerDev-val">10</span>
+          </div>
+          <input type="range" id="macBuildsPerDev" min="0" max="20" step="1" value="5" />
+        </div>
+        <div class="field">
+          <div class="field-header">
+            <span class="field-label">Avg CI/CD time</span>
+            <span class="field-value" id="avgTimeMac-val">18 min</span>
+          </div>
+          <input type="range" id="avgTimeMac" min="1" max="60" value="18" />
+        </div>
+      </div>
+
+      <div class="grid-col">
+        <h2 class="col-heading">Linux builds</h2>
+        <div class="field">
+          <div class="field-header">
+            <span class="field-label">Daily builds per developer</span>
+            <span class="field-value" id="linBuildsPerDev-val">5</span>
+          </div>
+          <input type="range" id="linBuildsPerDev" min="0" max="20" step="1" value="5" />
+        </div>
+        <div class="field">
+          <div class="field-header">
+            <span class="field-label">Avg CI/CD time</span>
+            <span class="field-value" id="avgTimeLinux-val">19 min</span>
+          </div>
+          <input type="range" id="avgTimeLinux" min="1" max="60" value="19" />
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <span class="toolbar-label">Compare:</span>
+      <button type="button" class="provider-btn active" data-provider="codemagic">
+        <span class="provider-swatch"></span> Codemagic
+      </button>
+      <button type="button" class="provider-btn active" data-provider="github">
+        <span class="provider-swatch"></span> GitHub Actions
+      </button>
+      <button type="button" class="provider-btn active" data-provider="bitrise">
+        <span class="provider-swatch"></span> Bitrise
+      </button>
+      <div class="toolbar-actions">
+        <label class="machine-picker">
+          <span class="toolbar-label">macOS</span>
+          <select id="macMachine" aria-label="macOS machine type">
+            <option value="mac_m2">M2</option>
+            <option value="mac_m4" selected>M4</option>
+          </select>
+        </label>
+        <button type="button" class="calc-btn" id="calculate">Calculate costs</button>
+      </div>
+    </div>
+
+    <div id="results">
+      <div class="cards" id="cards"></div>
+      <div class="chart-box">
+        <svg id="chart" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet" aria-label="Cost comparison chart"></svg>
+      </div>
+      <div class="chart-footer">
+        <div class="legend">
+          <span class="legend-item">
+            <span class="legend-usage"></span>
+            Current usage
+          </span>
+          <span class="legend-item">
+            <span class="legend-future"></span>
+            Future scaling
+          </span>
+        </div>
+        <div class="meta" id="meta"></div>
+      </div>
+      <p class="disclaimer">
+        Estimates based on published pricing as of early 2026. Builds per month = daily builds per developer × team size × 21 (weekdays only).
+        Codemagic: extra concurrency slots (beyond base 3) added when required by volume or your concurrency setting.
+        GitHub Actions: no concurrency charge — parallelism is unlimited, billed per minute. Requires Team plan ($4/user/mo) for larger runners.
+        Bitrise: Starter plan excluded when your concurrency requirement exceeds its tier limit; Pro plan used otherwise with PAYG overages where applicable.
+        macOS M2: Codemagic M2 plan, Bitrise M2 Pro Large ($0.0144/min), GitHub macOS XLarge ($0.102/min). macOS M4: Codemagic M4 plan, Bitrise M4 Pro X Large ($0.0293/min); GitHub Actions shown as N/A (no M4 runner SKU).
+        Estimates may not reflect enterprise agreements, volume discounts, or promotional offers.
+      </p>
+    </div>
+  </div>
+  <div class="tooltip" id="tooltip"></div>
+
+  <script>
+    // Per-minute USD — mac tiers aligned to published 2026 competitor equivalents
+    const MAC_MACHINES = {
+      mac_m2: {
+        short: "M2",
+        bitriseTier: "M2 Pro Large",
+        githubSku: "macOS XLarge (5-core M2 Pro)",
+      },
+      mac_m4: {
+        short: "M4",
+        bitriseTier: "M4 Pro X Large",
+        githubSku: "macOS XLarge (5-core M2 Pro)",
+      },
+    };
+    const RATES = {
+      codemagic: { mac_m2: 0.095, mac_m4: 0.114, linux_std: 0.045 },
+      github:    { mac_m2: 0.102, mac_m4: 0.102, linux_std: 0.022 },
+      bitrise:   { mac_m2: 0.0144, mac_m4: 0.0293, linux_std: 0.0134 },
+    };
+    const CM_PLANS = {
+      mac_m2: { annualMonthly: 332.50, extraConcurrencyMonthly: 125 },
+      mac_m4: { annualMonthly: 450,    extraConcurrencyMonthly: 150 },
+    };
+    const CM_BASE_CONCURRENCIES = 3;
+    const CM_MINUTES_PER_CONCURRENCY = 43200;
+    const BITRISE_PRO_TIERS = [
+      { builds: 250,  macMin: 2000,  linMin: 1000,  monthly: 199.67  },
+      { builds: 500,  macMin: 4000,  linMin: 2000,  monthly: 399.33  },
+      { builds: 750,  macMin: 6000,  linMin: 3000,  monthly: 598     },
+      { builds: 1000, macMin: 8000,  linMin: 4000,  monthly: 796.67  },
+      { builds: 1500, macMin: 12000, linMin: 6000,  monthly: 1196    },
+      { builds: 2000, macMin: 16000, linMin: 8000,  monthly: 1594.33 },
+    ];
+    const BITRISE_PAYG_PER_BUILD = 0.72;
+    const BITRISE_PAYG_LIN_MIN = 0.0134;
+    function bitriseMacRate(macMch) {
+      return RATES.bitrise[macMch] ?? RATES.bitrise.mac_m2;
+    }
+    const BITRISE_STARTER_TIERS = [
+      { monthly: 89,  concurrency: 1, maxTeam: 2  },
+      { monthly: 179, concurrency: 2, maxTeam: 5  },
+      { monthly: 269, concurrency: 3, maxTeam: 10 },
+    ];
+    const PROVIDERS = {
+      codemagic: {
+        name: "Codemagic", color: "#3ee89a", strokeWidth: 3,
+        calculate(builds, avgMac, avgLinux, macRatio, macMch, _lin, _team, concurrencies) {
+          const macMin = builds * macRatio * avgMac;
+          const linMin = builds * (1 - macRatio) * avgLinux;
+          const totalMin = macMin + linMin;
+          const payg = macMin * RATES.codemagic[macMch] + linMin * RATES.codemagic.linux_std;
+          const plan = CM_PLANS[macMch] || CM_PLANS.mac_m2;
+          const mLabel = macMch === "mac_m4" ? "M4" : "M2";
+          if (payg <= plan.annualMonthly) return { cost: payg, label: "Pay as you go" };
+          const slotsForVolume = Math.ceil(totalMin / CM_MINUTES_PER_CONCURRENCY);
+          const requiredSlots = Math.max(CM_BASE_CONCURRENCIES, concurrencies, slotsForVolume);
+          const extraSlots = Math.max(0, requiredSlots - CM_BASE_CONCURRENCIES);
+          const cost = plan.annualMonthly + extraSlots * plan.extraConcurrencyMonthly;
+          const slotWord = extraSlots === 1 ? "concurrency" : "concurrencies";
+          const label = extraSlots === 0
+            ? `Annual ${mLabel} plan`
+            : `Annual ${mLabel} + ${extraSlots} extra ${slotWord}`;
+          return { cost, label };
+        },
+      },
+      github: {
+        name: "GitHub Actions", color: "#a8b8cc", strokeWidth: 2,
+        calculate(builds, avgMac, avgLinux, macRatio, macMch, _lin, team) {
+          if (macMch === "mac_m4") {
+            return { cost: null, label: "N/A — no M4 macOS runner", na: true };
+          }
+          const macMin = builds * macRatio * avgMac;
+          const linMin = builds * (1 - macRatio) * avgLinux;
+          const rate = RATES.github.mac_m2;
+          const usage = macMin * rate + linMin * RATES.github.linux_std;
+          const teamCost = team * 4;
+          const mm = MAC_MACHINES.mac_m2;
+          return { cost: usage + teamCost, label: `Team plan ($${teamCost}) + ${mm.githubSku} @ $${rate}/min` };
+        },
+      },
+      bitrise: {
+        name: "Bitrise", color: "#c49bff", strokeWidth: 2,
+        calculate(builds, avgMac, avgLinux, macRatio, macMch, _lin, team, concurrencies) {
+          if (builds === 0) return { cost: 0, label: "No usage" };
+          const macMin = builds * macRatio * avgMac;
+          const linMin = builds * (1 - macRatio) * avgLinux;
+          const totalMin = macMin + linMin;
+          let starterResult = null;
+          for (let i = 0; i < BITRISE_STARTER_TIERS.length; i++) {
+            const st = BITRISE_STARTER_TIERS[i];
+            if (team <= st.maxTeam && concurrencies <= st.concurrency) {
+              const maxMin = st.concurrency * 43200;
+              if (totalMin <= maxMin) {
+                starterResult = {
+                  cost: st.monthly,
+                  label: `Starter Tier ${i + 1} (${st.concurrency} concurrency, ≤${st.maxTeam} devs)`,
+                };
+                break;
+              }
+            }
+          }
+          let chosenTier = BITRISE_PRO_TIERS[BITRISE_PRO_TIERS.length - 1];
+          let tierIdx = BITRISE_PRO_TIERS.length;
+          for (let i = 0; i < BITRISE_PRO_TIERS.length; i++) {
+            const tier = BITRISE_PRO_TIERS[i];
+            if (builds <= tier.builds * 1.5 && macMin <= tier.macMin * 1.5 && linMin <= tier.linMin * 1.5) {
+              chosenTier = tier; tierIdx = i + 1; break;
+            }
+          }
+          const topTier = BITRISE_PRO_TIERS[BITRISE_PRO_TIERS.length - 1];
+          const macRate = bitriseMacRate(macMch);
+          const mm = MAC_MACHINES[macMch] || MAC_MACHINES.mac_m2;
+          let proCost, proLabel;
+          const isEnterprise = builds > topTier.builds * 1.5 || macMin > topTier.macMin * 1.5 || linMin > topTier.linMin * 1.5;
+          if (isEnterprise) {
+            proCost = topTier.monthly
+              + Math.max(0, builds - topTier.builds) * BITRISE_PAYG_PER_BUILD
+              + Math.max(0, macMin - topTier.macMin) * macRate
+              + Math.max(0, linMin - topTier.linMin) * BITRISE_PAYG_LIN_MIN;
+            proLabel = `Enterprise est. (>${topTier.builds} builds) + PAYG (${mm.bitriseTier})`;
+          } else {
+            const paygCost = Math.max(0, builds - chosenTier.builds) * BITRISE_PAYG_PER_BUILD
+              + Math.max(0, macMin - chosenTier.macMin) * macRate
+              + Math.max(0, linMin - chosenTier.linMin) * BITRISE_PAYG_LIN_MIN;
+            proCost = chosenTier.monthly + paygCost;
+            proLabel = paygCost > 0.5
+              ? `Pro Tier ${tierIdx} (${chosenTier.builds} builds) + PAYG (${mm.bitriseTier})`
+              : `Pro Tier ${tierIdx} (${chosenTier.builds} builds incl.)`;
+          }
+          if (starterResult && starterResult.cost <= proCost) return starterResult;
+          return { cost: proCost, label: proLabel };
+        },
+      },
+    };
+
+    const WEEKDAYS_PER_MONTH = 21;
+
+    const fmt = (n) => n >= 1000 ? "$" + (n / 1000).toFixed(1) + "k" : "$" + Math.round(n);
+    const fmtFull = (n) => "$" + Math.round(n).toLocaleString();
+
+    const CHART = {
+      grid: getComputedStyle(document.documentElement).getPropertyValue("--chart-grid").trim() || "#2a3038",
+      muted: getComputedStyle(document.documentElement).getPropertyValue("--chart-muted").trim() || "#9daab8",
+      axis: getComputedStyle(document.documentElement).getPropertyValue("--chart-axis").trim() || "#c5d0dc",
+      marker: getComputedStyle(document.documentElement).getPropertyValue("--chart-marker").trim() || "#8b98a8",
+    };
+
+    const state = {
+      teamSize: 30,
+      concurrencies: 20,
+      macBuildsPerDev: 10,
+      linBuildsPerDev: 5,
+      avgTimeMac: 18,
+      avgTimeLinux: 19,
+      macMachine: "mac_m4",
+      active: { codemagic: true, github: true, bitrise: true },
+    };
+
+    function readInputs() {
+      state.teamSize = +document.getElementById("teamSize").value;
+      state.concurrencies = +document.getElementById("concurrencies").value;
+      state.macBuildsPerDev = +document.getElementById("macBuildsPerDev").value;
+      state.linBuildsPerDev = +document.getElementById("linBuildsPerDev").value;
+      state.avgTimeMac = +document.getElementById("avgTimeMac").value;
+      state.avgTimeLinux = +document.getElementById("avgTimeLinux").value;
+      state.macMachine = document.getElementById("macMachine").value;
+    }
+
+    function derived() {
+      const macBuilds = state.macBuildsPerDev * state.teamSize * WEEKDAYS_PER_MONTH;
+      const linBuilds = state.linBuildsPerDev * state.teamSize * WEEKDAYS_PER_MONTH;
+      const totalBuilds = macBuilds + linBuilds;
+      const macRatio = totalBuilds > 0 ? macBuilds / totalBuilds : 0.5;
+      const totalCIMinutes = Math.round(totalBuilds * (macRatio * state.avgTimeMac + (1 - macRatio) * state.avgTimeLinux));
+      return { macBuilds, linBuilds, totalBuilds, macRatio, totalCIMinutes };
+    }
+
+    function calcArgs(builds, d) {
+      return [builds, state.avgTimeMac, state.avgTimeLinux, d.macRatio, state.macMachine, "linux_std", state.teamSize, state.concurrencies];
+    }
+
+    function isGithubNa() {
+      return state.macMachine === "mac_m4";
+    }
+
+    function runProviderCalc(id, builds, d) {
+      const prov = PROVIDERS[id];
+      const r = prov.calculate(...calcArgs(builds, d));
+      if (r.na || r.cost == null) {
+        return { prov, cost: null, label: r.label, na: true };
+      }
+      return { prov, cost: Math.round(r.cost), label: r.label, na: false };
+    }
+
+    function updateLabels() {
+      readInputs();
+      const d = derived();
+      document.getElementById("teamSize-val").textContent = state.teamSize;
+      document.getElementById("concurrencies-val").textContent = state.concurrencies;
+      document.getElementById("macBuildsPerDev-val").textContent = state.macBuildsPerDev;
+      document.getElementById("linBuildsPerDev-val").textContent = state.linBuildsPerDev;
+      document.getElementById("avgTimeMac-val").textContent = state.avgTimeMac + " min";
+      document.getElementById("avgTimeLinux-val").textContent = state.avgTimeLinux + " min";
+    }
+
+    function buildChartData(d) {
+      const maxX = Math.max(d.totalBuilds * 2.5, 200);
+      const steps = 80;
+      const points = [];
+      for (let i = 0; i <= steps; i++) {
+        const b = Math.round((maxX / steps) * i);
+        const point = { builds: b };
+        for (const id of Object.keys(PROVIDERS)) {
+          if (!state.active[id]) continue;
+          const r = runProviderCalc(id, b, d);
+          if (r.na) continue;
+          point[id] = r.cost;
+          point[id + "_label"] = r.label;
+        }
+        points.push(point);
+      }
+      return { points, maxX };
+    }
+
+    function renderCards(d) {
+      const results = {};
+      let lowest = null, lowestCost = Infinity;
+      for (const id of Object.keys(PROVIDERS)) {
+        if (!state.active[id]) continue;
+        results[id] = runProviderCalc(id, d.totalBuilds, d);
+        if (!results[id].na && results[id].cost < lowestCost) {
+          lowestCost = results[id].cost;
+          lowest = id;
+        }
+      }
+      document.getElementById("cards").innerHTML = Object.entries(results).map(([id, r]) => {
+        const isLowest = !r.na && id === lowest;
+        return `<div class="card${isLowest ? " is-lowest" : ""}"${isLowest ? ` style="outline:1px solid ${r.prov.color}55"` : ""}>
+          <div class="card-header">
+            <span style="width:8px;height:8px;border-radius:2px;background:${r.prov.color}"></span>
+            <span class="card-name">${r.prov.name}</span>
+            ${isLowest ? '<span class="card-badge">Lowest</span>' : ""}
+          </div>
+          <div class="card-cost${r.na ? " na" : ""}">${r.na ? "N/A" : `${fmtFull(r.cost)}<span class="card-period">/month</span>`}</div>
+          <div class="card-plan">${r.label}</div>
+        </div>`;
+      }).join("");
+      document.getElementById("meta").textContent =
+        `Based on ${d.totalBuilds.toLocaleString()} builds / month · ${d.totalCIMinutes.toLocaleString()} total CI/CD minutes`;
+      return { results, chartMeta: buildChartData(d), usageBuilds: d.totalBuilds };
+    }
+
+    function renderChart({ chartMeta, usageBuilds }) {
+      const svg = document.getElementById("chart");
+      const W = 800, H = 400;
+      const pad = { t: 36, r: 24, b: 58, l: 76 };
+      const plotW = W - pad.l - pad.r;
+      const plotH = H - pad.t - pad.b;
+      const xTickY = H - pad.b + 18;
+      const xTitleY = H - 10;
+      const yTickX = pad.l - 14;
+      const yTitleX = 22;
+      const { points, maxX } = chartMeta;
+
+      let maxY = 100;
+      for (const p of points) {
+        for (const id of Object.keys(PROVIDERS)) {
+          if (state.active[id] && p[id] != null && p[id] > maxY) maxY = p[id];
+        }
+      }
+      maxY *= 1.08;
+
+      const xScale = (b) => pad.l + (b / maxX) * plotW;
+      const yScale = (c) => pad.t + plotH - (c / maxY) * plotH;
+
+      const gridY = 5;
+      let html = "";
+      for (let i = 0; i <= gridY; i++) {
+        const y = pad.t + (plotH / gridY) * i;
+        const val = maxY * (1 - i / gridY);
+        html += `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="${CHART.grid}" stroke-dasharray="3 3"/>`;
+        html += `<text x="${yTickX}" y="${y + 4}" text-anchor="end" font-size="11" fill="${CHART.muted}">${fmt(val)}</text>`;
+      }
+
+      const xTicks = 5;
+      for (let i = 0; i <= xTicks; i++) {
+        const b = Math.round((maxX / xTicks) * i);
+        const x = xScale(b);
+        html += `<text x="${x}" y="${xTickY}" text-anchor="middle" font-size="11" fill="${CHART.muted}">${b >= 1000 ? (b / 1000).toFixed(1) + "k" : b}</text>`;
+      }
+      html += `<text x="${W / 2}" y="${xTitleY}" text-anchor="middle" font-size="12" fill="${CHART.axis}">Builds per month</text>`;
+      html += `<text x="${yTitleX}" y="${pad.t + plotH / 2}" text-anchor="middle" font-size="12" fill="${CHART.axis}" transform="rotate(-90 ${yTitleX} ${pad.t + plotH / 2})">Monthly cost (USD)</text>`;
+
+      function splitAtUsage(pts, valueKey, usage) {
+        if (!pts.length || usage <= 0) return { solid: [], dashed: pts };
+        if (usage >= pts[pts.length - 1].builds) return { solid: pts, dashed: [] };
+        let solid = pts.filter((p) => p.builds <= usage);
+        let dashed = pts.filter((p) => p.builds >= usage);
+        for (let i = 0; i < pts.length - 1; i++) {
+          const a = pts[i], b = pts[i + 1];
+          if (a.builds <= usage && b.builds >= usage && a.builds !== b.builds) {
+            const t = (usage - a.builds) / (b.builds - a.builds);
+            const mid = { builds: usage };
+            for (const k of Object.keys(a)) {
+              if (k !== "builds" && typeof a[k] === "number") mid[k] = a[k] + t * (b[k] - a[k]);
+            }
+            solid = [...solid.filter((p) => p.builds < usage), mid];
+            dashed = [mid, ...dashed.filter((p) => p.builds > usage)];
+            break;
+          }
+        }
+        return { solid, dashed };
+      }
+
+      function linePath(pts, valueKey) {
+        if (!pts.length) return "";
+        return pts.map((p, i) =>
+          `${i === 0 ? "M" : "L"}${xScale(p.builds).toFixed(1)},${yScale(p[valueKey]).toFixed(1)}`
+        ).join(" ");
+      }
+
+      for (const [id, prov] of Object.entries(PROVIDERS)) {
+        if (!state.active[id]) continue;
+        const pts = points.filter((p) => p[id] != null);
+        const { solid, dashed } = splitAtUsage(pts, id, usageBuilds);
+        if (solid.length) {
+          html += `<path d="${linePath(solid, id)}" fill="none" stroke="${prov.color}" stroke-width="${prov.strokeWidth}"/>`;
+        }
+        if (dashed.length) {
+          html += `<path d="${linePath(dashed, id)}" fill="none" stroke="${prov.color}" stroke-width="${prov.strokeWidth}" stroke-dasharray="7 5"/>`;
+        }
+      }
+
+      if (usageBuilds > 0) {
+        const xu = xScale(usageBuilds);
+        html += `<line x1="${xu}" y1="${pad.t}" x2="${xu}" y2="${pad.t + plotH}" stroke="${CHART.marker}" stroke-width="1.5"/>`;
+        html += `<text x="${xu}" y="${pad.t - 10}" text-anchor="middle" font-size="11" font-weight="500" fill="${CHART.axis}">Your usage: ${usageBuilds.toLocaleString()} builds</text>`;
+      }
+
+      html += `<rect x="${pad.l}" y="${pad.t}" width="${plotW}" height="${plotH}" fill="transparent" id="chart-hit"/>`;
+      svg.innerHTML = html;
+
+      const tooltip = document.getElementById("tooltip");
+      const hit = svg.querySelector("#chart-hit");
+      hit.addEventListener("mousemove", (e) => {
+        const rect = svg.getBoundingClientRect();
+        const sx = ((e.clientX - rect.left) / rect.width) * W;
+        const builds = Math.round(((sx - pad.l) / plotW) * maxX);
+        const clamped = Math.max(0, Math.min(maxX, builds));
+        let nearest = points[0];
+        let best = Infinity;
+        for (const p of points) {
+          const dist = Math.abs(p.builds - clamped);
+          if (dist < best) { best = dist; nearest = p; }
+        }
+        let tip = `<strong>${nearest.builds.toLocaleString()} builds / month</strong><br>`;
+        for (const [id, prov] of Object.entries(PROVIDERS)) {
+          if (!state.active[id]) continue;
+          if (nearest[id] == null) {
+            if (id === "github" && isGithubNa()) {
+              tip += `<div style="margin-top:6px"><span style="color:${prov.color}">■</span> <b>${prov.name}:</b> N/A<br><span class="tip-muted">No M4 macOS runner</span></div>`;
+            }
+            continue;
+          }
+          tip += `<div style="margin-top:6px"><span style="color:${prov.color}">■</span> <b>${prov.name}:</b> ${fmtFull(Math.round(nearest[id]))}/month<br><span class="tip-muted">${nearest[id + "_label"] || ""}</span></div>`;
+        }
+        tooltip.innerHTML = tip;
+        tooltip.style.display = "block";
+        tooltip.style.left = (e.clientX + 12) + "px";
+        tooltip.style.top = (e.clientY + 12) + "px";
+      });
+      hit.addEventListener("mouseleave", () => { tooltip.style.display = "none"; });
+    }
+
+    document.querySelectorAll("#inputs input").forEach((el) => {
+      el.addEventListener("input", updateLabels);
+    });
+
+    document.getElementById("macMachine").addEventListener("change", () => {
+      readInputs();
+      if (document.getElementById("results").classList.contains("visible")) {
+        const d = derived();
+        const out = renderCards(d);
+        renderChart(out);
+      }
+    });
+
+    function styleProviderBtn(btn, on) {
+      const id = btn.dataset.provider;
+      const c = PROVIDERS[id].color;
+      const swatch = btn.querySelector(".provider-swatch");
+      if (on) {
+        btn.style.borderColor = c;
+        btn.style.color = c;
+        btn.style.background = c + "22";
+        swatch.style.background = c;
+      } else {
+        btn.style.borderColor = "var(--color-border-tertiary)";
+        btn.style.color = "var(--color-text-secondary)";
+        btn.style.background = "var(--bg-card)";
+        swatch.style.background = "var(--color-border-secondary)";
+      }
+    }
+
+    document.querySelectorAll(".provider-btn").forEach((btn) => {
+      const id = btn.dataset.provider;
+      btn.addEventListener("click", () => {
+        state.active[id] = !state.active[id];
+        btn.classList.toggle("active", state.active[id]);
+        styleProviderBtn(btn, state.active[id]);
+      });
+      styleProviderBtn(btn, state.active[id]);
+    });
+
+    document.getElementById("calculate").addEventListener("click", () => {
+      readInputs();
+      const d = derived();
+      const out = renderCards(d);
+      document.getElementById("results").classList.add("visible");
+      renderChart(out);
+    });
+
+    updateLabels();
+  </script>
+</body>
+</html>
