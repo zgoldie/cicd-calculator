@@ -25,11 +25,11 @@
       --color-border-tertiary: #2a3038;
       --color-border-secondary: #3d4550;
       --border-radius-md: 8px;
-      --border-radius-lg: 10px;
+      --border-radius-lg: 0;
+      --panel-padding-x: 24px;
       --chart-grid: #2a3038;
       --chart-muted: #9daab8;
       --chart-axis: #c5d0dc;
-      --chart-marker: #8b98a8;
       --provider-codemagic: #3ee89a;
       --provider-github: #a8b8cc;
       --provider-bitrise: #c49bff;
@@ -44,46 +44,36 @@
       -webkit-font-smoothing: antialiased;
     }
     .wrap { max-width: 1280px; margin: 0 auto; }
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
+    .page-header { margin-bottom: 24px; padding-left: var(--panel-padding-x); }
     h1 { font-size: 26px; font-weight: 600; margin: 0; letter-spacing: -0.03em; }
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
     .main-layout {
       display: grid;
       grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
-      grid-template-rows: auto 1fr auto;
       gap: 24px;
       align-items: stretch;
     }
     .inputs-panel {
-      grid-row: 1 / 3;
       display: flex;
       flex-direction: column;
       margin-bottom: 0;
+    }
+    .output-panel {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      padding-bottom: 18px;
     }
     .section-divider {
       border-top: 1px solid var(--color-border-tertiary);
       margin: 8px 0 20px;
     }
-    .col-heading { margin-top: 4px; }
-    .col-heading:not(:first-child) { margin-top: 0; }
     .inputs-panel .field:last-child { margin-bottom: 0; }
-    .subtitle { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 24px; line-height: 1.5; }
     .panel {
       background: var(--bg-card);
       border: 1px solid var(--color-border-tertiary);
       border-radius: var(--border-radius-lg);
-      padding: 22px 24px;
+      padding: 22px var(--panel-padding-x);
     }
     .col-heading {
       font-size: 18px;
@@ -91,6 +81,38 @@
       color: var(--color-text-primary);
       letter-spacing: -0.03em;
       margin: 0 0 16px;
+    }
+    .section-heading-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .section-heading-row .col-heading { margin-bottom: 0; }
+    .section-heading-row select {
+      width: auto;
+      min-width: 72px;
+      height: 32px;
+      flex-shrink: 0;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-border-tertiary);
+      padding: 0 28px 0 10px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      background-color: var(--bg-input);
+      color: var(--color-text-primary);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+    }
+    .section-heading-row select:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
     }
     .field { margin-bottom: 20px; }
     .field-header {
@@ -100,24 +122,12 @@
       gap: 16px;
       margin-bottom: 10px;
     }
-    .field-title { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
     .field-label {
       font-size: 15px;
       color: var(--color-text-secondary);
       font-weight: 500;
       letter-spacing: -0.01em;
       line-height: 1.25;
-    }
-    .field-sublabel {
-      font-size: 12px;
-      color: var(--color-text-secondary);
-      font-weight: 400;
-      line-height: 1.35;
-    }
-    .field-hint {
-      font-size: 12px;
-      color: var(--color-text-secondary);
-      font-weight: 400;
     }
     .field-value {
       font-size: 17px;
@@ -133,32 +143,57 @@
       height: 6px;
       -webkit-appearance: none;
       appearance: none;
-      background: #2a3038;
-      border-radius: 3px;
+      background: var(--color-border-tertiary);
+      border-radius: 100px;
       outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 6px;
+      background: var(--color-border-tertiary);
+      border-radius: 100px;
     }
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
+      margin-top: -4px;
       border-radius: 50%;
-      background: var(--accent);
+      background: #f1f5f9;
       cursor: pointer;
-      border: 2px solid var(--bg-card);
-      box-shadow: 0 0 0 1px var(--accent);
+      border: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      transition: box-shadow 0.15s ease;
     }
-    input[type="range"]::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--accent);
-      cursor: pointer;
-      border: 2px solid var(--bg-card);
+    input[type="range"]:hover::-webkit-slider-thumb {
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    input[type="range"]:focus-visible::-webkit-slider-thumb {
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--color-border-secondary);
     }
     input[type="range"]::-moz-range-track {
       height: 6px;
-      background: #2a3038;
-      border-radius: 3px;
+      background: var(--color-border-tertiary);
+      border-radius: 100px;
+      border: none;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      transition: background 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type="range"]:hover::-moz-range-thumb {
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    input[type="range"]:focus-visible::-moz-range-thumb {
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--color-border-secondary);
     }
     select {
       width: 100%;
@@ -172,62 +207,13 @@
       color: var(--color-text-primary);
     }
     select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-    .toolbar { display: none; }
-    .machine-picker {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .machine-picker select {
-      height: 38px;
-      min-width: 118px;
-      border-radius: var(--border-radius-md);
-      border: 1px solid var(--color-border-tertiary);
-      padding: 0 12px;
-      font-size: 14px;
-      font-family: inherit;
-      background: var(--bg-card);
-      color: var(--color-text-primary);
-    }
-    .toolbar-label { font-size: 13px; color: var(--color-text-secondary); font-weight: 500; margin-right: 4px; }
-    .provider-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
-      border-radius: var(--border-radius-md);
-      border: 1px solid var(--color-border-tertiary);
-      background: var(--bg-card);
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--color-text-secondary);
-      font-family: inherit;
-      transition: border-color 0.15s, color 0.15s, background 0.15s;
-    }
-    .provider-btn.active { border-width: 2px; }
-    .provider-swatch { width: 10px; height: 10px; border-radius: 2px; }
-    .calc-btn {
-      padding: 10px 24px;
-      border-radius: var(--border-radius-md);
-      background: var(--accent);
-      color: #fff;
-      font-weight: 500;
-      font-size: 14px;
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      transition: background 0.15s;
-    }
-    .calc-btn:hover { background: var(--accent-hover); }
     .cards {
-      grid-column: 2;
-      grid-row: 1;
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
       flex-shrink: 0;
       min-width: 0;
+      margin-bottom: 20px;
     }
     .card {
       padding: 16px 18px 16px 20px;
@@ -238,11 +224,8 @@
       flex: 1;
       position: relative;
     }
-    .card.is-lowest {
-      border-color: transparent;
-      box-shadow: inset 3px 0 0 var(--color-text-success);
-    }
     .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .card-swatch { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
     .card-name { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
     .card-badge {
       font-size: 10px; font-weight: 600; padding: 3px 8px;
@@ -259,64 +242,65 @@
       color: var(--color-text-secondary);
       margin-left: 3px;
     }
-    .card-cost.empty {
-      font-size: 22px;
+    .card-plan {
+      font-size: 12px;
       color: var(--color-text-tertiary);
+      margin-top: 6px;
+      line-height: 1.45;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .card-plan.empty { color: var(--color-text-tertiary); font-style: italic; }
-    .card-plan { font-size: 11px; color: var(--color-text-tertiary); margin-top: 4px; line-height: 1.4; }
     .chart-footer {
-      grid-column: 2;
-      grid-row: 3;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
       flex-wrap: wrap;
       gap: 12px 20px;
-      padding: 0 4px;
       flex-shrink: 0;
-    }
-    .meta {
-      font-size: 12px;
-      color: var(--color-text-tertiary);
-      text-align: right;
-      line-height: 1.4;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--color-border-tertiary);
     }
     .legend {
       display: flex;
-      gap: 20px;
+      flex-wrap: wrap;
+      gap: 12px 20px;
       font-size: 11px;
       color: var(--color-text-secondary);
     }
     .legend-item { display: flex; align-items: center; gap: 6px; }
-    .legend-usage {
-      width: 2px;
-      height: 12px;
-      border-radius: 1px;
-      background: var(--color-border-secondary);
-    }
-    .legend-future {
-      width: 14px;
-      height: 0;
-      border-top: 2px dashed var(--color-text-tertiary);
-    }
-    .chart-box {
-      grid-column: 2;
-      grid-row: 2;
-      background: var(--bg-card);
-      border: 1px solid var(--color-border-tertiary);
-      border-radius: var(--border-radius-lg);
-      padding: 20px 12px 16px 8px;
-      min-height: 320px;
+    .legend-swatch { width: 14px; height: 3px; border-radius: 1px; flex-shrink: 0; }
+    .chart-area {
+      flex: 1 1 auto;
+      min-height: 280px;
       min-width: 0;
       display: flex;
       flex-direction: column;
+      margin: 0 -4px;
     }
     #chart { width: 100%; flex: 1; min-height: 280px; height: auto; display: block; }
-    .disclaimer { font-size: 11px; color: var(--color-text-tertiary); margin-top: 20px; line-height: 1.65; padding: 0 4px; }
+    .disclaimer {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      margin-top: 24px;
+      line-height: 1.55;
+      padding: 0 var(--panel-padding-x);
+    }
+    .disclaimer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 32px;
+    }
+    .disclaimer ul {
+      margin: 0;
+      padding-left: 1.1em;
+    }
+    .disclaimer li + li { margin-top: 6px; }
+    .disclaimer strong { color: var(--color-text-secondary); font-weight: 500; }
     @media (max-width: 640px) {
-      .chart-footer { flex-direction: column; align-items: flex-start; }
-      .meta { text-align: left; }
+      .disclaimer-grid { grid-template-columns: 1fr; gap: 0; }
+      .disclaimer ul + ul { margin-top: 6px; }
     }
     .tooltip {
       position: fixed;
@@ -335,17 +319,11 @@
     }
     .tooltip .tip-muted { color: var(--color-text-tertiary); font-size: 11px; }
     @media (max-width: 960px) {
-      .main-layout { grid-template-columns: 1fr; grid-template-rows: auto; }
-      .inputs-panel { grid-row: auto; grid-column: 1; }
-      .cards, .chart-box, .chart-footer { grid-column: 1; grid-row: auto; }
-      .chart-box { min-height: 360px; }
+      .main-layout { grid-template-columns: 1fr; }
+      .chart-area { min-height: 360px; }
     }
     @media (max-width: 640px) {
-      .page-header { flex-direction: column; align-items: stretch; }
-      .header-actions { width: 100%; }
-      .header-actions .calc-btn { flex: 1; }
-      .machine-picker { flex: 1; }
-      .machine-picker select { flex: 1; min-width: 0; width: 100%; }
+      .section-heading-row select { min-width: 64px; }
     }
   </style>
 </head>
@@ -353,16 +331,6 @@
   <div class="wrap">
     <header class="page-header">
       <h1>CI/CD Pricing Calculator</h1>
-      <div class="header-actions">
-        <label class="machine-picker">
-          <span class="toolbar-label">macOS</span>
-          <select id="macMachine" aria-label="macOS machine type">
-            <option value="mac_m2">M2</option>
-            <option value="mac_m4" selected>M4</option>
-          </select>
-        </label>
-        <button type="button" class="calc-btn" id="calculate">Calculate</button>
-      </div>
     </header>
 
     <div class="main-layout">
@@ -378,17 +346,23 @@
         <div class="field" data-key="concurrencies">
           <div class="field-header">
             <span class="field-label">Concurrencies</span>
-            <span class="field-value" id="concurrencies-val">20</span>
+            <span class="field-value" id="concurrencies-val">10</span>
           </div>
           <input type="range" id="concurrencies" min="1" max="100" value="10" />
         </div>
 
         <div class="section-divider"></div>
-        <h2 class="col-heading">macOS builds</h2>
+        <div class="section-heading-row">
+          <h2 class="col-heading">macOS builds</h2>
+          <select id="macMachine" aria-label="macOS machine type">
+            <option value="mac_m2" selected>M2</option>
+            <option value="mac_m4">M4</option>
+          </select>
+        </div>
         <div class="field">
           <div class="field-header">
             <span class="field-label">Daily builds per developer</span>
-            <span class="field-value" id="macBuildsPerDev-val">10</span>
+            <span class="field-value" id="macBuildsPerDev-val">5</span>
           </div>
           <input type="range" id="macBuildsPerDev" min="0" max="20" step="1" value="5" />
         </div>
@@ -418,49 +392,50 @@
         </div>
       </aside>
 
-      <div class="cards" id="cards"></div>
-      <div class="chart-box">
-        <svg id="chart" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet" aria-label="Cost comparison chart"></svg>
-      </div>
-      <div class="chart-footer">
-        <div class="legend">
-          <span class="legend-item">
-            <span class="legend-usage"></span>
-            Current usage
-          </span>
-          <span class="legend-item">
-            <span class="legend-future"></span>
-            Future scaling
-          </span>
+      <div class="panel output-panel">
+        <div class="cards" id="cards"></div>
+        <div class="chart-area">
+          <svg id="chart" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet" aria-label="Cost comparison chart"></svg>
         </div>
-        <div class="meta" id="meta"></div>
+        <div class="chart-footer">
+          <div class="legend">
+            <span class="legend-item">
+              <span class="legend-swatch" style="background:var(--provider-codemagic)"></span>
+              Codemagic
+            </span>
+            <span class="legend-item">
+              <span class="legend-swatch" style="background:var(--provider-github)"></span>
+              GitHub Actions
+            </span>
+            <span class="legend-item">
+              <span class="legend-swatch" style="background:var(--provider-bitrise)"></span>
+              Bitrise
+            </span>
+          </div>
+        </div>
       </div>
     </div>
-    <p class="disclaimer">
-      Estimates based on published pricing as of early 2026. Builds per month = daily builds per developer × team size × 21 (weekdays only).
-      Codemagic: extra concurrency slots (beyond base 3) added when required by volume or your concurrency setting.
-      GitHub Actions: no concurrency charge — parallelism is unlimited, billed per minute. Requires Team plan ($4/user/mo) for larger runners.
-      Bitrise: Starter plan excluded when your concurrency requirement exceeds its tier limit; Pro plan used otherwise with PAYG overages where applicable.
-      macOS M2: Codemagic M2 plan, Bitrise M2 Pro Large ($0.0144/min), GitHub macOS XLarge ($0.102/min). macOS M4: Codemagic M4 plan, Bitrise M4 Pro X Large ($0.0293/min); GitHub Actions shown as N/A (no M4 runner SKU).
-      Estimates may not reflect enterprise agreements, volume discounts, or promotional offers.
-    </p>
+    <div class="disclaimer">
+      <div class="disclaimer-grid">
+        <ul>
+          <li>Estimates based on published pricing as of early 2026.</li>
+          <li>Builds per month = daily builds per developer × team size × 21 (weekdays only).</li>
+          <li>Estimates may not reflect enterprise agreements, volume discounts, or promotional offers.</li>
+        </ul>
+        <ul>
+          <li><strong>Codemagic:</strong> extra concurrency slots (beyond base 3) added when required by volume or your concurrency setting.</li>
+          <li><strong>GitHub Actions:</strong> no concurrency charge — billed per minute. Requires Team plan ($4/user/mo) for larger runners.</li>
+          <li><strong>Bitrise:</strong> Starter excluded when concurrency exceeds tier limit; Pro plan + PAYG overages otherwise.</li>
+          <li><strong>macOS M2:</strong> Codemagic M2 plan, Bitrise M2 Pro Large ($0.0144/min), GitHub macOS XLarge ($0.102/min).</li>
+          <li><strong>macOS M4:</strong> Codemagic M4 plan, Bitrise M4 Pro X Large ($0.0293/min); GitHub shown as N/A (no M4 runner SKU).</li>
+        </ul>
+      </div>
+    </div>
   </div>
   <div class="tooltip" id="tooltip"></div>
 
   <script>
     // Per-minute USD — mac tiers aligned to published 2026 competitor equivalents
-    const MAC_MACHINES = {
-      mac_m2: {
-        short: "M2",
-        bitriseTier: "M2 Pro Large",
-        githubSku: "macOS XLarge (5-core M2 Pro)",
-      },
-      mac_m4: {
-        short: "M4",
-        bitriseTier: "M4 Pro X Large",
-        githubSku: "macOS XLarge (5-core M2 Pro)",
-      },
-    };
     const RATES = {
       codemagic: { mac_m2: 0.095, mac_m4: 0.114, linux_std: 0.045 },
       github:    { mac_m2: 0.102, mac_m4: 0.102, linux_std: 0.022 },
@@ -492,7 +467,7 @@
     ];
     const PROVIDERS = {
       codemagic: {
-        name: "Codemagic", color: "#3ee89a", strokeWidth: 3,
+        name: "Codemagic", color: "#3ee89a", strokeWidth: 2,
         calculate(builds, avgMac, avgLinux, macRatio, macMch, _lin, _team, concurrencies) {
           const macMin = builds * macRatio * avgMac;
           const linMin = builds * (1 - macRatio) * avgLinux;
@@ -500,15 +475,14 @@
           const payg = macMin * RATES.codemagic[macMch] + linMin * RATES.codemagic.linux_std;
           const plan = CM_PLANS[macMch] || CM_PLANS.mac_m2;
           const mLabel = macMch === "mac_m4" ? "M4" : "M2";
-          if (payg <= plan.annualMonthly) return { cost: payg, label: "Pay as you go" };
+          if (payg <= plan.annualMonthly) return { cost: payg, label: `Pay as you go @ ${fmtMinRate(RATES.codemagic[macMch])}` };
           const slotsForVolume = Math.ceil(totalMin / CM_MINUTES_PER_CONCURRENCY);
           const requiredSlots = Math.max(CM_BASE_CONCURRENCIES, concurrencies, slotsForVolume);
           const extraSlots = Math.max(0, requiredSlots - CM_BASE_CONCURRENCIES);
           const cost = plan.annualMonthly + extraSlots * plan.extraConcurrencyMonthly;
-          const slotWord = extraSlots === 1 ? "concurrency" : "concurrencies";
           const label = extraSlots === 0
             ? `Annual ${mLabel} plan`
-            : `Annual ${mLabel} + ${extraSlots} extra ${slotWord}`;
+            : `Annual ${mLabel} + ${extraSlots} extra slots`;
           return { cost, label };
         },
       },
@@ -516,15 +490,13 @@
         name: "GitHub Actions", color: "#a8b8cc", strokeWidth: 2,
         calculate(builds, avgMac, avgLinux, macRatio, macMch, _lin, team) {
           if (macMch === "mac_m4") {
-            return { cost: null, label: "N/A — no M4 macOS runner", na: true };
+            return { cost: null, label: "No M4 macOS runner", na: true };
           }
           const macMin = builds * macRatio * avgMac;
           const linMin = builds * (1 - macRatio) * avgLinux;
-          const rate = RATES.github.mac_m2;
-          const usage = macMin * rate + linMin * RATES.github.linux_std;
+          const usage = macMin * RATES.github.mac_m2 + linMin * RATES.github.linux_std;
           const teamCost = team * 4;
-          const mm = MAC_MACHINES.mac_m2;
-          return { cost: usage + teamCost, label: `Team plan ($${teamCost}) + ${mm.githubSku} @ $${rate}/min` };
+          return { cost: usage + teamCost, label: `Team plan ($${teamCost}/mo) + macOS @ ${fmtMinRate(RATES.github.mac_m2)}` };
         },
       },
       bitrise: {
@@ -542,7 +514,7 @@
               if (totalMin <= maxMin) {
                 starterResult = {
                   cost: st.monthly,
-                  label: `Starter Tier ${i + 1} (${st.concurrency} concurrency, ≤${st.maxTeam} devs)`,
+                  label: `Starter Tier ${i + 1} plan`,
                 };
                 break;
               }
@@ -558,7 +530,6 @@
           }
           const topTier = BITRISE_PRO_TIERS[BITRISE_PRO_TIERS.length - 1];
           const macRate = bitriseMacRate(macMch);
-          const mm = MAC_MACHINES[macMch] || MAC_MACHINES.mac_m2;
           let proCost, proLabel;
           const isEnterprise = builds > topTier.builds * 1.5 || macMin > topTier.macMin * 1.5 || linMin > topTier.linMin * 1.5;
           if (isEnterprise) {
@@ -566,15 +537,15 @@
               + Math.max(0, builds - topTier.builds) * BITRISE_PAYG_PER_BUILD
               + Math.max(0, macMin - topTier.macMin) * macRate
               + Math.max(0, linMin - topTier.linMin) * BITRISE_PAYG_LIN_MIN;
-            proLabel = `Enterprise est. (>${topTier.builds} builds) + PAYG (${mm.bitriseTier})`;
+            proLabel = `Enterprise plan + PAYG @ ${fmtMinRate(macRate)}`;
           } else {
             const paygCost = Math.max(0, builds - chosenTier.builds) * BITRISE_PAYG_PER_BUILD
               + Math.max(0, macMin - chosenTier.macMin) * macRate
               + Math.max(0, linMin - chosenTier.linMin) * BITRISE_PAYG_LIN_MIN;
             proCost = chosenTier.monthly + paygCost;
             proLabel = paygCost > 0.5
-              ? `Pro Tier ${tierIdx} (${chosenTier.builds} builds) + PAYG (${mm.bitriseTier})`
-              : `Pro Tier ${tierIdx} (${chosenTier.builds} builds incl.)`;
+              ? `Pro Tier ${tierIdx} + PAYG @ ${fmtMinRate(macRate)}`
+              : `Pro Tier ${tierIdx} plan`;
           }
           if (starterResult && starterResult.cost <= proCost) return starterResult;
           return { cost: proCost, label: proLabel };
@@ -586,23 +557,22 @@
 
     const fmt = (n) => n >= 1000 ? "$" + (n / 1000).toFixed(1) + "k" : "$" + Math.round(n);
     const fmtFull = (n) => "$" + Math.round(n).toLocaleString();
+    const fmtMinRate = (r) => `$${parseFloat(r.toFixed(4))}/min`;
 
     const CHART = {
       grid: getComputedStyle(document.documentElement).getPropertyValue("--chart-grid").trim() || "#2a3038",
       muted: getComputedStyle(document.documentElement).getPropertyValue("--chart-muted").trim() || "#9daab8",
       axis: getComputedStyle(document.documentElement).getPropertyValue("--chart-axis").trim() || "#c5d0dc",
-      marker: getComputedStyle(document.documentElement).getPropertyValue("--chart-marker").trim() || "#8b98a8",
     };
 
     const state = {
       teamSize: 30,
-      concurrencies: 20,
-      macBuildsPerDev: 10,
+      concurrencies: 10,
+      macBuildsPerDev: 5,
       linBuildsPerDev: 5,
       avgTimeMac: 18,
       avgTimeLinux: 19,
-      macMachine: "mac_m4",
-      calculated: false,
+      macMachine: "mac_m2",
     };
 
     function readInputs() {
@@ -641,7 +611,7 @@
       return { prov, cost: Math.round(r.cost), label: r.label, na: false };
     }
 
-    function updateLabels() {
+    function updateResults() {
       readInputs();
       const d = derived();
       document.getElementById("teamSize-val").textContent = state.teamSize;
@@ -650,6 +620,8 @@
       document.getElementById("linBuildsPerDev-val").textContent = state.linBuildsPerDev;
       document.getElementById("avgTimeMac-val").textContent = state.avgTimeMac + " min";
       document.getElementById("avgTimeLinux-val").textContent = state.avgTimeLinux + " min";
+      const out = renderCards(d);
+      renderChart(out);
     }
 
     function buildChartData(d) {
@@ -670,18 +642,10 @@
       return { points, maxX };
     }
 
-    function renderEmptyCards() {
-      document.getElementById("cards").innerHTML = Object.entries(PROVIDERS).map(([, prov]) => `
-        <div class="card">
-          <div class="card-header">
-            <span style="width:8px;height:8px;border-radius:2px;background:${prov.color}"></span>
-            <span class="card-name">${prov.name}</span>
-          </div>
-          <div class="card-cost empty">—</div>
-          <div class="card-plan empty">Press Calculate to estimate</div>
-        </div>
-      `).join("");
-      document.getElementById("meta").textContent = "";
+    function xAxisLabelCenterX(maxX, pad, plotW) {
+      const xTicks = 5;
+      const midBuilds = ((maxX / xTicks) * 2 + (maxX / xTicks) * 3) / 2;
+      return pad.l + (midBuilds / maxX) * plotW;
     }
 
     function chartAxesHtml(W, H, pad, maxY, maxX) {
@@ -690,8 +654,8 @@
       const xTickY = H - pad.b + 18;
       const xTitleY = H - 10;
       const yTickX = pad.l - 14;
-      const yTitleX = 22;
       const xScale = (b) => pad.l + (b / maxX) * plotW;
+      const xTitleX = xAxisLabelCenterX(maxX, pad, plotW);
       let html = "";
       const gridY = 5;
       for (let i = 0; i <= gridY; i++) {
@@ -705,16 +669,8 @@
         const b = Math.round((maxX / xTicks) * i);
         html += `<text x="${xScale(b)}" y="${xTickY}" text-anchor="middle" font-size="11" fill="${CHART.muted}">${b >= 1000 ? (b / 1000).toFixed(1) + "k" : b}</text>`;
       }
-      html += `<text x="${W / 2}" y="${xTitleY}" text-anchor="middle" font-size="12" fill="${CHART.axis}">Builds per month</text>`;
-      html += `<text x="${yTitleX}" y="${pad.t + plotH / 2}" text-anchor="middle" font-size="12" fill="${CHART.axis}" transform="rotate(-90 ${yTitleX} ${pad.t + plotH / 2})">Monthly cost (USD)</text>`;
+      html += `<text x="${xTitleX}" y="${xTitleY}" text-anchor="middle" font-size="12" fill="${CHART.axis}">Builds per month</text>`;
       return html;
-    }
-
-    function renderEmptyChart() {
-      const svg = document.getElementById("chart");
-      const W = 800, H = 400;
-      const pad = { t: 36, r: 24, b: 58, l: 76 };
-      svg.innerHTML = chartAxesHtml(W, H, pad, 1000, 200);
     }
 
     function renderCards(d) {
@@ -729,9 +685,9 @@
       }
       document.getElementById("cards").innerHTML = Object.entries(results).map(([id, r]) => {
         const isLowest = !r.na && id === lowest;
-        return `<div class="card${isLowest ? " is-lowest" : ""}"${isLowest ? ` style="outline:1px solid ${r.prov.color}55"` : ""}>
+        return `<div class="card">
           <div class="card-header">
-            <span style="width:8px;height:8px;border-radius:2px;background:${r.prov.color}"></span>
+            <span class="card-swatch" style="background:${r.prov.color}"></span>
             <span class="card-name">${r.prov.name}</span>
             ${isLowest ? '<span class="card-badge">Lowest</span>' : ""}
           </div>
@@ -739,15 +695,13 @@
           <div class="card-plan">${r.label}</div>
         </div>`;
       }).join("");
-      document.getElementById("meta").textContent =
-        `Based on ${d.totalBuilds.toLocaleString()} builds / month · ${d.totalCIMinutes.toLocaleString()} total CI/CD minutes`;
-      return { results, chartMeta: buildChartData(d), usageBuilds: d.totalBuilds };
+      return { chartMeta: buildChartData(d), usageBuilds: d.totalBuilds };
     }
 
     function renderChart({ chartMeta, usageBuilds }) {
       const svg = document.getElementById("chart");
       const W = 800, H = 400;
-      const pad = { t: 36, r: 24, b: 58, l: 76 };
+      const pad = { t: 24, r: 24, b: 58, l: 76 };
       const plotW = W - pad.l - pad.r;
       const plotH = H - pad.t - pad.b;
       const { points, maxX } = chartMeta;
@@ -765,7 +719,7 @@
 
       let html = chartAxesHtml(W, H, pad, maxY, maxX);
 
-      function splitAtUsage(pts, valueKey, usage) {
+      function splitAtUsage(pts, usage) {
         if (!pts.length || usage <= 0) return { solid: [], dashed: pts };
         if (usage >= pts[pts.length - 1].builds) return { solid: pts, dashed: [] };
         let solid = pts.filter((p) => p.builds <= usage);
@@ -795,19 +749,13 @@
 
       for (const [id, prov] of Object.entries(PROVIDERS)) {
         const pts = points.filter((p) => p[id] != null);
-        const { solid, dashed } = splitAtUsage(pts, id, usageBuilds);
+        const { solid, dashed } = splitAtUsage(pts, usageBuilds);
         if (solid.length) {
           html += `<path d="${linePath(solid, id)}" fill="none" stroke="${prov.color}" stroke-width="${prov.strokeWidth}"/>`;
         }
         if (dashed.length) {
           html += `<path d="${linePath(dashed, id)}" fill="none" stroke="${prov.color}" stroke-width="${prov.strokeWidth}" stroke-dasharray="7 5"/>`;
         }
-      }
-
-      if (usageBuilds > 0) {
-        const xu = xScale(usageBuilds);
-        html += `<line x1="${xu}" y1="${pad.t}" x2="${xu}" y2="${pad.t + plotH}" stroke="${CHART.marker}" stroke-width="1.5"/>`;
-        html += `<text x="${xu}" y="${pad.t - 10}" text-anchor="middle" font-size="11" font-weight="500" fill="${CHART.axis}">Your usage: ${usageBuilds.toLocaleString()} builds</text>`;
       }
 
       html += `<rect x="${pad.l}" y="${pad.t}" width="${plotW}" height="${plotH}" fill="transparent" id="chart-hit"/>`;
@@ -845,29 +793,12 @@
     }
 
     document.querySelectorAll("#inputs input").forEach((el) => {
-      el.addEventListener("input", updateLabels);
+      el.addEventListener("input", updateResults);
     });
 
-    document.getElementById("macMachine").addEventListener("change", () => {
-      readInputs();
-      if (state.calculated) {
-        const d = derived();
-        const out = renderCards(d);
-        renderChart(out);
-      }
-    });
+    document.getElementById("macMachine").addEventListener("change", updateResults);
 
-    document.getElementById("calculate").addEventListener("click", () => {
-      readInputs();
-      state.calculated = true;
-      const d = derived();
-      const out = renderCards(d);
-      renderChart(out);
-    });
-
-    updateLabels();
-    renderEmptyCards();
-    renderEmptyChart();
+    updateResults();
   </script>
 </body>
 </html>
