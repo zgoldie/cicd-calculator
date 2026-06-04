@@ -34,6 +34,7 @@
       --chart-axis: #c5d0dc;
       --provider-codemagic: #34d399;
       --provider-github: #60a5fa;
+      --provider-expo: #7c8aff;
       --provider-bitrise: #94a3b8;
     }
     * { box-sizing: border-box; }
@@ -237,6 +238,30 @@
     .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .card-swatch { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
     .card-name { font-size: 13px; color: #dce3eb; font-weight: 500; }
+    .card-provider-select {
+      flex: 1;
+      min-width: 0;
+      max-width: 100%;
+      height: 28px;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-border-tertiary);
+      padding: 0 26px 0 8px;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: inherit;
+      color: #dce3eb;
+      background-color: var(--bg-input);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+    }
+    .card-provider-select:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
     .card-cost { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
     .card-cost.na { font-size: 22px; color: var(--color-text-tertiary); }
     .card-period {
@@ -396,7 +421,7 @@
         </ul>
         <ul>
           <li><strong>Codemagic:</strong> Annual — M2 $3,990/yr (+$1,500/yr per extra), M4 $5,400/yr (+$1,800/yr per extra), 3 concurrencies included; low volume uses PAYG per minute instead.</li>
-          <li><strong>GitHub Actions:</strong> Team plan ($4/user/mo) + macOS @ $0.102/min (M2); no M4 macOS runner.</li>
+          <li id="disclaimer-alt"><strong>GitHub Actions:</strong> Team plan ($4/user/mo) + macOS @ $0.102/min (M2); no M4 macOS runner.</li>
           <li><strong>Bitrise:</strong> Pro or Enterprise tier + PAYG overages. macOS @ $0.0144/min (M2), $0.0293/min (M4).</li>
         </ul>
       </div>
@@ -441,6 +466,42 @@
       { monthly: 179, concurrency: 2, maxTeam: 5  },
       { monthly: 269, concurrency: 3, maxTeam: 10 },
     ];
+    const EAS_PRODUCTION = {
+      monthly: 199,
+      buildCredit: 225,
+      includedConcurrency: 2,
+      extraConcurrencyMonthly: 50,
+    };
+    const EAS_BUILD_PRICE = {
+      medium: { ios: 2, android: 1 },
+      large: { ios: 4, android: 2 },
+    };
+    const EAS_WORKFLOW_PER_MIN = { macos: 0.075, linux: 0.018 };
+
+    function easSplit(builds, macRatio, avgMac, avgLinux) {
+      const iosBuilds = Math.round(builds * macRatio);
+      const androidBuilds = Math.max(0, builds - iosBuilds);
+      const testMinutes = iosBuilds * avgMac + androidBuilds * avgLinux;
+      return { iosBuilds, androidBuilds, testMinutes };
+    }
+
+    function calcExpo(builds, avgMac, avgLinux, macRatio, macMch, _lin, _team, concurrencies) {
+      const worker = macMch === "mac_m4" ? "large" : "medium";
+      const prices = EAS_BUILD_PRICE[worker];
+      const { iosBuilds, androidBuilds, testMinutes } = easSplit(builds, macRatio, avgMac, avgLinux);
+      const buildUsage = iosBuilds * prices.ios + androidBuilds * prices.android;
+      const buildOverage = Math.max(0, buildUsage - EAS_PRODUCTION.buildCredit);
+      const extraConc =
+        Math.max(0, concurrencies - EAS_PRODUCTION.includedConcurrency) * EAS_PRODUCTION.extraConcurrencyMonthly;
+      const workflowRate =
+        macRatio * EAS_WORKFLOW_PER_MIN.macos + (1 - macRatio) * EAS_WORKFLOW_PER_MIN.linux;
+      const testCost = testMinutes * workflowRate;
+      const cost = EAS_PRODUCTION.monthly + buildOverage + extraConc + testCost;
+      const label =
+        `Production · ${iosBuilds} iOS + ${androidBuilds} And · ${worker} · ~${Math.round(testMinutes)} test min`;
+      return { cost, label };
+    }
+
     const PROVIDERS = {
       codemagic: {
         name: "Codemagic", color: "#34d399", strokeWidth: 2,
@@ -462,19 +523,6 @@
             ? `Annual ${mLabel} · $${plan.annualYearly.toLocaleString()}/yr (3 concurrencies)`
             : `Annual ${mLabel} · $${plan.annualYearly.toLocaleString()}/yr + ${extraSlots}×$${plan.extraConcurrencyYearly.toLocaleString()}/yr`;
           return { cost: annualCost, label };
-        },
-      },
-      github: {
-        name: "GitHub Actions", color: "#60a5fa", strokeWidth: 2,
-        calculate(builds, avgMac, avgLinux, macRatio, macMch, _lin, team) {
-          if (macMch === "mac_m4") {
-            return { cost: null, label: "No M4 macOS runner", na: true };
-          }
-          const macMin = builds * macRatio * avgMac;
-          const linMin = builds * (1 - macRatio) * avgLinux;
-          const usage = macMin * RATES.github.mac_m2 + linMin * RATES.github.linux_std;
-          const teamCost = team * 4;
-          return { cost: usage + teamCost, label: `Team plan ($${teamCost}/mo) + macOS @ ${fmtMinRate(RATES.github.mac_m2)}` };
         },
       },
       bitrise: {
@@ -531,6 +579,30 @@
       },
     };
 
+    const ALT_PROVIDERS = {
+      github: {
+        name: "GitHub Actions",
+        color: "#60a5fa",
+        strokeWidth: 2,
+        calculate(builds, avgMac, avgLinux, macRatio, macMch, _lin, team) {
+          if (macMch === "mac_m4") {
+            return { cost: null, label: "No M4 macOS runner", na: true };
+          }
+          const macMin = builds * macRatio * avgMac;
+          const linMin = builds * (1 - macRatio) * avgLinux;
+          const usage = macMin * RATES.github.mac_m2 + linMin * RATES.github.linux_std;
+          const teamCost = team * 4;
+          return { cost: usage + teamCost, label: `Team plan ($${teamCost}/mo) + macOS @ ${fmtMinRate(RATES.github.mac_m2)}` };
+        },
+      },
+      expo: {
+        name: "Expo (EAS)",
+        color: "#7c8aff",
+        strokeWidth: 2,
+        calculate: calcExpo,
+      },
+    };
+
     const WEEKDAYS_PER_MONTH = 21;
 
     const fmt = (n) => n >= 1000 ? "$" + (n / 1000).toFixed(1) + "k" : "$" + Math.round(n);
@@ -551,7 +623,21 @@
       avgTimeMac: 18,
       avgTimeLinux: 19,
       macMachine: "mac_m2",
+      altProvider: "github",
     };
+
+    function providerIds() {
+      return ["codemagic", state.altProvider, "bitrise"];
+    }
+
+    function getProvider(id) {
+      if (id === "codemagic" || id === "bitrise") return PROVIDERS[id];
+      return ALT_PROVIDERS[id];
+    }
+
+    function isAltProvider(id) {
+      return id === "github" || id === "expo";
+    }
 
     function readInputs() {
       state.teamSize = +document.getElementById("teamSize").value;
@@ -577,11 +663,23 @@
     }
 
     function isGithubNa() {
-      return state.macMachine === "mac_m4";
+      return state.altProvider === "github" && state.macMachine === "mac_m4";
+    }
+
+    function updateDisclaimerAlt() {
+      const el = document.getElementById("disclaimer-alt");
+      if (!el) return;
+      if (state.altProvider === "expo") {
+        el.innerHTML =
+          "<strong>Expo (EAS):</strong> Production $199/mo + $225 build credit; iOS/Android per-build overage (med/lg); workflow test min @ blended $/min (build time sliders). EAS Update not included.";
+      } else {
+        el.innerHTML =
+          "<strong>GitHub Actions:</strong> Team plan ($4/user/mo) + macOS @ $0.102/min (M2); no M4 macOS runner.";
+      }
     }
 
     function runProviderCalc(id, builds, d) {
-      const prov = PROVIDERS[id];
+      const prov = getProvider(id);
       const r = prov.calculate(...calcArgs(builds, d));
       if (r.na || r.cost == null) {
         return { prov, cost: null, label: r.label, na: true };
@@ -609,7 +707,7 @@
       for (let i = 0; i <= steps; i++) {
         const b = Math.round((maxX / steps) * i);
         const point = { builds: b };
-        for (const id of Object.keys(PROVIDERS)) {
+        for (const id of providerIds()) {
           const r = runProviderCalc(id, b, d);
           if (r.na) continue;
           point[id] = r.cost;
@@ -651,21 +749,34 @@
       return html;
     }
 
-    function renderCards(d) {
-      const results = {};
-      for (const id of Object.keys(PROVIDERS)) {
-        results[id] = runProviderCalc(id, d.totalBuilds, d);
-      }
-      document.getElementById("cards").innerHTML = Object.entries(results).map(([id, r]) => `
-        <div class="card">
-          <div class="card-header">
+    function renderCardHtml(id, r) {
+      const header = isAltProvider(id)
+        ? `<div class="card-header">
+            <span class="card-swatch" style="background:${r.prov.color}"></span>
+            <select class="card-provider-select" id="alt-provider" aria-label="Compare provider">
+              <option value="github"${state.altProvider === "github" ? " selected" : ""}>GitHub Actions</option>
+              <option value="expo"${state.altProvider === "expo" ? " selected" : ""}>Expo (EAS)</option>
+            </select>
+          </div>`
+        : `<div class="card-header">
             <span class="card-swatch" style="background:${r.prov.color}"></span>
             <span class="card-name">${r.prov.name}</span>
-          </div>
+          </div>`;
+      return `
+        <div class="card">
+          ${header}
           <div class="card-cost${r.na ? " na" : ""}">${r.na ? "N/A" : `${fmtFull(r.cost)}<span class="card-period">/month</span>`}</div>
           <div class="card-plan">${r.label}</div>
-        </div>
-      `).join("");
+        </div>`;
+    }
+
+    function renderCards(d) {
+      const results = {};
+      for (const id of providerIds()) {
+        results[id] = runProviderCalc(id, d.totalBuilds, d);
+      }
+      document.getElementById("cards").innerHTML = providerIds().map((id) => renderCardHtml(id, results[id])).join("");
+      updateDisclaimerAlt();
       return { chartMeta: buildChartData(d), usageBuilds: d.totalBuilds };
     }
 
@@ -679,7 +790,7 @@
 
       let maxY = 100;
       for (const p of points) {
-        for (const id of Object.keys(PROVIDERS)) {
+        for (const id of providerIds()) {
           if (p[id] != null && p[id] > maxY) maxY = p[id];
         }
       }
@@ -718,7 +829,8 @@
         ).join(" ");
       }
 
-      for (const [id, prov] of Object.entries(PROVIDERS)) {
+      for (const id of providerIds()) {
+        const prov = getProvider(id);
         const pts = points.filter((p) => p[id] != null);
         const { solid, dashed } = splitAtUsage(pts, usageBuilds);
         if (solid.length) {
@@ -746,7 +858,8 @@
           if (dist < best) { best = dist; nearest = p; }
         }
         let tip = `<strong>${nearest.builds.toLocaleString()} builds / month</strong><br>`;
-        for (const [id, prov] of Object.entries(PROVIDERS)) {
+        for (const id of providerIds()) {
+          const prov = getProvider(id);
           if (nearest[id] == null) {
             if (id === "github" && isGithubNa()) {
               tip += `<div style="margin-top:6px"><span style="color:${prov.color}">■</span> <b>${prov.name}:</b> N/A<br><span class="tip-muted">No M4 macOS runner</span></div>`;
@@ -768,6 +881,13 @@
     });
 
     document.getElementById("macMachine").addEventListener("change", updateResults);
+
+    document.getElementById("cards").addEventListener("change", (e) => {
+      if (e.target.id === "alt-provider") {
+        state.altProvider = e.target.value;
+        updateResults();
+      }
+    });
 
     updateResults();
   </script>

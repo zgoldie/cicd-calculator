@@ -8,7 +8,7 @@ Compare estimated monthly costs for **Codemagic**, **GitHub Actions**, and **Bit
 
 **Burstable concurrency (Codemagic only):** [zgoldie.github.io/cicd-calculator/burstable.html](https://zgoldie.github.io/cicd-calculator/burstable.html)
 
-Or open `index.html` locally in Chrome, Safari, or Edge. Adjust team size, concurrencies, macOS/Linux build volume, and CI times — results update live. Choose **M2** or **M4** for macOS pricing.
+Or open `index.html` locally in Chrome, Safari, or Edge. Adjust team size, concurrencies, macOS/Linux build volume, and CI times — results update live. Choose **M2** or **M4** for macOS pricing. Use the middle card dropdown to compare **GitHub Actions** or **Expo (EAS)**.
 
 No install, login, or build step. Works offline locally. Keep `favicon.svg` in the same folder as the HTML.
 
