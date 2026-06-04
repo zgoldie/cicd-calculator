@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Burstable concurrency · Codemagic</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", monospace;
+      --bg-page: #111418;
+      --bg-card: #1a1d21;
+      --bg-input: #14171b;
+      --accent: #0052ff;
+      --color-text-primary: #ffffff;
+      --color-text-secondary: #94a3b8;
+      --color-text-tertiary: #64748b;
+      --color-background-secondary: #22262c;
+      --color-border-tertiary: #2a3038;
+      --color-border-secondary: #3d4550;
+      --border-radius-md: 8px;
+      --border-radius-lg: 0;
+      --panel-padding-x: 24px;
+      --provider-codemagic: #34d399;
+      --warn-bg: rgba(251, 191, 36, 0.1);
+      --warn-border: rgba(251, 191, 36, 0.35);
+      --warn-text: #fcd34d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 32px 20px 56px;
+      font-family: var(--font-mono);
+      background: var(--bg-page);
+      color: var(--color-text-primary);
+      -webkit-font-smoothing: antialiased;
+      font-feature-settings: "tnum" 1;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    .page-header { margin-bottom: 8px; padding-left: var(--panel-padding-x); }
+    h1 { font-size: 26px; font-weight: 600; margin: 0; letter-spacing: 0; }
+    .page-subtitle {
+      margin: 8px 0 24px;
+      padding-left: var(--panel-padding-x);
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+    .main-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      padding: 22px var(--panel-padding-x);
+    }
+    .inputs-panel { padding: 20px var(--panel-padding-x); }
+    .inputs-panel .col-heading { margin-bottom: 12px; }
+    .inputs-panel .section-heading-row { margin-bottom: 12px; }
+    .inputs-panel .field { margin-bottom: 14px; }
+    .inputs-panel .field:last-child { margin-bottom: 0; }
+    .inputs-panel .field-header {
+      margin-bottom: 6px;
+      align-items: center;
+    }
+    .inputs-panel .field-label { line-height: 1.2; }
+    .col-heading {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin: 0 0 16px;
+    }
+    .section-heading-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .section-heading-row .col-heading { margin-bottom: 0; }
+    .section-heading-row select {
+      width: auto;
+      min-width: 72px;
+      height: 32px;
+      flex-shrink: 0;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-border-tertiary);
+      padding: 0 28px 0 10px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      background-color: var(--bg-input);
+      color: var(--color-text-primary);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+    }
+    .section-heading-row select:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+    .field-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+    .field-label {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+      line-height: 1.25;
+    }
+    .field-hint {
+      display: block;
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+    .field-input {
+      width: 64px;
+      height: 32px;
+      padding: 0 8px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      color: var(--color-text-primary);
+      background: var(--bg-input);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      flex-shrink: 0;
+    }
+    .field-input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      border-color: var(--color-border-secondary);
+    }
+    .field-input::-webkit-outer-spin-button,
+    .field-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .field-input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: var(--color-border-tertiary);
+      border-radius: 100px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 6px;
+      background: var(--color-border-tertiary);
+      border-radius: 100px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      margin-top: -4px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+    input[type="range"]::-moz-range-track {
+      height: 6px;
+      background: var(--color-border-tertiary);
+      border-radius: 100px;
+      border: none;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      cursor: pointer;
+      border: none;
+    }
+    .output-panel { min-width: 0; }
+    .warn-banner {
+      display: none;
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--warn-text);
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: var(--border-radius-md);
+      font-family: var(--font-sans);
+    }
+    .warn-banner.visible { display: block; }
+    .result-card {
+      padding: 20px 22px 22px 24px;
+      border-radius: var(--border-radius-lg);
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-tertiary);
+    }
+    .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .card-swatch {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      background: var(--provider-codemagic);
+    }
+    .card-name { font-size: 13px; color: #dce3eb; font-weight: 500; }
+    .card-cost {
+      font-size: 32px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .card-yearly {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      margin-top: 4px;
+    }
+    .card-plan {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      margin-top: 8px;
+      line-height: 1.45;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .breakdown {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--color-border-tertiary);
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+    }
+    .breakdown dt {
+      color: var(--color-text-tertiary);
+      font-weight: 500;
+      margin-top: 8px;
+    }
+    .breakdown dt:first-child { margin-top: 0; }
+    .breakdown dd {
+      margin: 2px 0 0;
+      color: var(--color-text-secondary);
+    }
+    .compare-line {
+      margin-top: 14px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--color-text-tertiary);
+      font-family: var(--font-sans);
+    }
+    .compare-line strong {
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+    .disclaimer {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      margin-top: 24px;
+      line-height: 1.55;
+      padding: 0 var(--panel-padding-x);
+    }
+    .disclaimer ul {
+      margin: 0;
+      padding-left: 1.1em;
+    }
+    .disclaimer li + li { margin-top: 6px; }
+    @media (max-width: 960px) {
+      .main-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .section-heading-row select { min-width: 64px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="page-header">
+      <h1>Burstable concurrencies</h1>
+    </header>
+    <br>
+
+    <div class="main-layout">
+      <aside class="panel inputs-panel" id="inputs">
+        <div class="section-heading-row">
+          <h2 class="col-heading">Annual plan</h2>
+          <select id="macMachine" aria-label="macOS machine type">
+            <option value="mac_m2" selected>M2</option>
+            <option value="mac_m4">M4</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <div class="field-header">
+            <span class="field-label">
+              Typical concurrencies
+              <span class="field-hint">95th percentile usage</span>
+            </span>
+            <input
+              type="number"
+              class="field-input"
+              id="typical-num"
+              min="1"
+              max="100"
+              value="10"
+              inputmode="numeric"
+              aria-label="Typical concurrencies"
+            />
+          </div>
+          <input type="range" id="typical" min="1" max="100" value="10" aria-labelledby="typical-num" />
+        </div>
+
+        <div class="field">
+          <div class="field-header">
+            <span class="field-label">
+              Burst concurrencies
+              <span class="field-hint">Occasional spike above typical</span>
+            </span>
+            <input
+              type="number"
+              class="field-input"
+              id="burst-num"
+              min="0"
+              max="100"
+              value="10"
+              inputmode="numeric"
+              aria-label="Burst concurrencies"
+            />
+          </div>
+          <input type="range" id="burst" min="0" max="100" value="10" aria-labelledby="burst-num" />
+        </div>
+      </aside>
+
+      <div class="output-panel">
+        <div class="warn-banner" id="warn" role="status"></div>
+        <div class="result-card" id="result">
+          <div class="card-header">
+            <span class="card-swatch" aria-hidden="true"></span>
+            <span class="card-name">Codemagic</span>
+          </div>
+          <div class="card-cost" id="cost-monthly">—</div>
+          <div class="card-yearly" id="cost-yearly"></div>
+          <div class="card-plan" id="plan-line"></div>
+          <dl class="breakdown" id="breakdown"></dl>
+          <p class="compare-line" id="compare"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <ul>
+        <li>Estimates based on published Codemagic annual pricing as of early 2026. Not a quote.</li>
+        <li>Burstable concurrencies require <strong>10+ subscribed</strong> concurrencies. Billing uses the <strong>95th percentile</strong> of 5-second concurrency samples each month; the top 5% of peaks are treated as burst.</li>
+        <li>Slots up to your typical (p95) level bill at the full annual extra-concurrency rate; burst concurrencies (spike above typical) bill at <strong>one-third</strong> of that rate. Three concurrencies are included in the base annual plan.</li>
+        <li>Annual M2: $3,990/yr base, +$1,500/yr per extra slot. Annual M4: $5,400/yr base, +$1,800/yr per extra slot. Unlimited build minutes on included instance types.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const CM_PLANS = {
+      mac_m2: { annualYearly: 3990, extraConcurrencyYearly: 1500 },
+      mac_m4: { annualYearly: 5400, extraConcurrencyYearly: 1800 },
+    };
+    const CM_BASE_CONCURRENCIES = 3;
+    const BURSTABLE_MIN_SUBSCRIBED = 10;
+
+    const fmtFull = (n) => "$" + Math.round(n).toLocaleString();
+
+    const FIELD_BOUNDS = {
+      typical: { min: 1, max: 100 },
+      burst: { min: 0, max: 100 },
+    };
+
+    function clampField(id, raw) {
+      const b = FIELD_BOUNDS[id];
+      const n = Math.round(Number(raw));
+      if (!Number.isFinite(n)) return b.min;
+      return Math.min(b.max, Math.max(b.min, n));
+    }
+
+    function setField(id, value) {
+      const v = clampField(id, value);
+      document.getElementById(id).value = v;
+      const num = document.getElementById(id + "-num");
+      if (document.activeElement !== num) num.value = v;
+      return v;
+    }
+
+    function bindNumericPair(id) {
+      const slider = document.getElementById(id);
+      const num = document.getElementById(id + "-num");
+
+      slider.addEventListener("input", () => {
+        setField(id, slider.value);
+        render();
+      });
+
+      num.addEventListener("input", () => {
+        if (num.value === "" || num.value === "-") return;
+        setField(id, num.value);
+        render();
+      });
+
+      num.addEventListener("change", () => {
+        setField(id, num.value === "" ? FIELD_BOUNDS[id].min : num.value);
+        render();
+      });
+
+      num.addEventListener("blur", () => {
+        setField(id, num.value === "" ? FIELD_BOUNDS[id].min : num.value);
+        render();
+      });
+    }
+
+    const state = {
+      macMachine: "mac_m2",
+      typical: 10,
+      burst: 10,
+    };
+
+    function readInputs() {
+      state.macMachine = document.getElementById("macMachine").value;
+      state.typical = +document.getElementById("typical").value;
+      state.burst = +document.getElementById("burst").value;
+    }
+
+    function computeBurstable() {
+      const plan = CM_PLANS[state.macMachine] || CM_PLANS.mac_m2;
+      const mLabel = state.macMachine === "mac_m4" ? "M4" : "M2";
+      const baseMonthly = plan.annualYearly / 12;
+      const extraMonthly = plan.extraConcurrencyYearly / 12;
+      const subscribed = state.typical + state.burst;
+
+      const fullSlots = Math.max(0, state.typical - CM_BASE_CONCURRENCIES);
+      const burstSlots = state.burst;
+      const flatSlots = Math.max(0, subscribed - CM_BASE_CONCURRENCIES);
+
+      const burstableMonthly =
+        baseMonthly + fullSlots * extraMonthly + burstSlots * (extraMonthly / 3);
+      const flatMonthly = baseMonthly + flatSlots * extraMonthly;
+      const savingsMonthly = flatMonthly - burstableMonthly;
+
+      return {
+        plan,
+        mLabel,
+        baseMonthly,
+        extraMonthly,
+        fullSlots,
+        burstSlots,
+        flatSlots,
+        subscribed,
+        burstableMonthly,
+        flatMonthly,
+        savingsMonthly,
+        burstableYearly: burstableMonthly * 12,
+      };
+    }
+
+    function render() {
+      readInputs();
+      const r = computeBurstable();
+
+      setField("typical", state.typical);
+      setField("burst", state.burst);
+
+      const warn = document.getElementById("warn");
+      if (r.subscribed < BURSTABLE_MIN_SUBSCRIBED) {
+        warn.textContent =
+          "Burstable billing applies from 10+ subscribed concurrencies. Estimate shown uses the burstable formula for exploration.";
+        warn.classList.add("visible");
+      } else {
+        warn.classList.remove("visible");
+      }
+
+      document.getElementById("cost-monthly").textContent = fmtFull(r.burstableMonthly) + "/month";
+      document.getElementById("cost-yearly").textContent = fmtFull(r.burstableYearly) + "/year (estimated)";
+
+      const burstPart = r.burstSlots > 0 ? ` · ${r.burstSlots} burst @ ⅓` : "";
+      document.getElementById("plan-line").textContent =
+        `Annual ${r.mLabel} · ${state.typical} typical${burstPart} · ${r.subscribed} subscribed`;
+
+      const fullYr = r.fullSlots * r.plan.extraConcurrencyYearly;
+      const burstYr = r.burstSlots * (r.plan.extraConcurrencyYearly / 3);
+      document.getElementById("breakdown").innerHTML = `
+        <dt>Base annual plan</dt>
+        <dd>${CM_BASE_CONCURRENCIES} concurrencies = ${fmtFull(r.plan.annualYearly)}/yr (${fmtFull(r.baseMonthly)}/mo)</dd>
+        <dt>Full-price slots above base</dt>
+        <dd>${r.fullSlots} × ${fmtFull(r.plan.extraConcurrencyYearly)}/yr = ${fmtFull(fullYr)}/yr (${fmtFull(fullYr / 12)}/mo)</dd>
+        <dt>Burst concurrencies</dt>
+        <dd>${r.burstSlots} × ${fmtFull(r.plan.extraConcurrencyYearly)}/yr @ ⅓ = ${fmtFull(burstYr)}/yr (${fmtFull(burstYr / 12)}/mo)</dd>
+      `;
+
+      const compare = document.getElementById("compare");
+      if (r.savingsMonthly > 0.5) {
+        compare.innerHTML =
+          `If all <strong>${r.subscribed}</strong> subscribed slots billed at full rate: <strong>${fmtFull(r.flatMonthly)}/mo</strong> · save <strong>${fmtFull(r.savingsMonthly)}/mo</strong> with burstable`;
+      } else {
+        compare.innerHTML =
+          `With no burst headroom, all subscribed slots bill at full rate: <strong>${fmtFull(r.flatMonthly)}/mo</strong>`;
+      }
+    }
+
+    bindNumericPair("typical");
+    bindNumericPair("burst");
+    document.getElementById("macMachine").addEventListener("change", render);
+    render();
+  </script>
+</body>
+</html>
