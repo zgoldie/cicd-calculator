@@ -381,7 +381,7 @@
           <li>Estimates may not reflect enterprise agreements, volume discounts, or promotional offers.</li>
         </ul>
         <ul>
-          <li><strong>Codemagic:</strong> Annual M2/M4 plan; extra concurrency beyond base 3 when needed. macOS PAYG @ $0.095/min (M2), $0.114/min (M4).</li>
+          <li><strong>Codemagic:</strong> Annual plan — M2 $3,990/yr (3 concurrencies), +$1,500/yr per extra; M4 $5,400/yr (3 concurrencies), +$1,800/yr per extra.</li>
           <li><strong>GitHub Actions:</strong> Team plan ($4/user/mo) + macOS @ $0.102/min (M2); no M4 macOS runner.</li>
           <li><strong>Bitrise:</strong> Pro or Enterprise tier + PAYG overages. macOS @ $0.0144/min (M2), $0.0293/min (M4).</li>
         </ul>
@@ -398,11 +398,17 @@
       bitrise:   { mac_m2: 0.0144, mac_m4: 0.0293, linux_std: 0.0134 },
     };
     const CM_PLANS = {
-      mac_m2: { annualMonthly: 332.50, extraConcurrencyMonthly: 125 },
-      mac_m4: { annualMonthly: 450,    extraConcurrencyMonthly: 150 },
+      mac_m2: { annualYearly: 3990, extraConcurrencyYearly: 1500 },
+      mac_m4: { annualYearly: 5400, extraConcurrencyYearly: 1800 },
     };
     const CM_BASE_CONCURRENCIES = 3;
     const CM_MINUTES_PER_CONCURRENCY = 43200;
+    function cmMonthly(plan) {
+      return plan.annualYearly / 12;
+    }
+    function cmExtraMonthly(plan) {
+      return plan.extraConcurrencyYearly / 12;
+    }
     const BITRISE_PRO_TIERS = [
       { builds: 250,  macMin: 2000,  linMin: 1000,  monthly: 199.67  },
       { builds: 500,  macMin: 4000,  linMin: 2000,  monthly: 399.33  },
@@ -428,17 +434,15 @@
           const macMin = builds * macRatio * avgMac;
           const linMin = builds * (1 - macRatio) * avgLinux;
           const totalMin = macMin + linMin;
-          const payg = macMin * RATES.codemagic[macMch] + linMin * RATES.codemagic.linux_std;
           const plan = CM_PLANS[macMch] || CM_PLANS.mac_m2;
           const mLabel = macMch === "mac_m4" ? "M4" : "M2";
-          if (payg <= plan.annualMonthly) return { cost: payg, label: `Pay as you go @ ${fmtMinRate(RATES.codemagic[macMch])}` };
           const slotsForVolume = Math.ceil(totalMin / CM_MINUTES_PER_CONCURRENCY);
           const requiredSlots = Math.max(CM_BASE_CONCURRENCIES, concurrencies, slotsForVolume);
           const extraSlots = Math.max(0, requiredSlots - CM_BASE_CONCURRENCIES);
-          const cost = plan.annualMonthly + extraSlots * plan.extraConcurrencyMonthly;
+          const cost = Math.round(cmMonthly(plan) + extraSlots * cmExtraMonthly(plan));
           const label = extraSlots === 0
-            ? `Annual ${mLabel} plan`
-            : `Annual ${mLabel} + ${extraSlots} extra slots`;
+            ? `Annual ${mLabel} · $${plan.annualYearly.toLocaleString()}/yr (3 concurrencies)`
+            : `Annual ${mLabel} · $${plan.annualYearly.toLocaleString()}/yr + ${extraSlots}×$${plan.extraConcurrencyYearly.toLocaleString()}/yr`;
           return { cost, label };
         },
       },
