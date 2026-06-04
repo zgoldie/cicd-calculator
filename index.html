@@ -7,10 +7,11 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", monospace;
       --bg-page: #111418;
       --bg-card: #1a1d21;
       --bg-input: #14171b;
@@ -39,14 +40,15 @@
     body {
       margin: 0;
       padding: 32px 20px 56px;
-      font-family: var(--font-sans);
+      font-family: var(--font-mono);
       background: var(--bg-page);
       color: var(--color-text-primary);
       -webkit-font-smoothing: antialiased;
+      font-feature-settings: "tnum" 1;
     }
     .wrap { max-width: 1280px; margin: 0 auto; }
     .page-header { margin-bottom: 24px; padding-left: var(--panel-padding-x); }
-    h1 { font-size: 26px; font-weight: 600; margin: 0; letter-spacing: -0.03em; }
+    h1 { font-size: 26px; font-weight: 600; margin: 0; letter-spacing: 0; }
     .main-layout {
       display: grid;
       grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
@@ -60,11 +62,23 @@
       flex-direction: column;
       margin-bottom: 0;
     }
+    .inputs-panel.panel {
+      padding: 20px var(--panel-padding-x);
+    }
+    .inputs-panel .col-heading { margin-bottom: 12px; }
+    .inputs-panel .section-divider { margin: 6px 0 14px; }
+    .inputs-panel .section-heading-row { margin-bottom: 12px; }
+    .inputs-panel .field { margin-bottom: 14px; }
+    .inputs-panel .field-header {
+      margin-bottom: 6px;
+      align-items: center;
+    }
     .section-divider {
       border-top: 1px solid var(--color-border-tertiary);
       margin: 8px 0 20px;
     }
     .inputs-panel .field:last-child { margin-bottom: 0; }
+    .inputs-panel .field-label { line-height: 1.2; }
     .panel {
       background: var(--bg-card);
       border: 1px solid var(--color-border-tertiary);
@@ -75,7 +89,7 @@
       font-size: 18px;
       font-weight: 600;
       color: var(--color-text-primary);
-      letter-spacing: -0.03em;
+      letter-spacing: 0;
       margin: 0 0 16px;
     }
     .section-heading-row {
@@ -119,10 +133,9 @@
       margin-bottom: 10px;
     }
     .field-label {
-      font-size: 15px;
+      font-size: 14px;
       color: var(--color-text-secondary);
       font-weight: 500;
-      letter-spacing: -0.01em;
       line-height: 1.25;
     }
     .field-value {
@@ -132,7 +145,7 @@
       min-width: 80px;
       text-align: right;
       flex-shrink: 0;
-      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
     }
     input[type="range"] {
       width: 100%;
@@ -224,7 +237,7 @@
     .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .card-swatch { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
     .card-name { font-size: 13px; color: #dce3eb; font-weight: 500; }
-    .card-cost { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+    .card-cost { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
     .card-cost.na { font-size: 22px; color: var(--color-text-tertiary); }
     .card-period {
       font-size: 15px;
@@ -253,8 +266,9 @@
       display: flex;
       flex-direction: column;
     }
-    #chart { width: 100%; flex: 1; min-height: 280px; height: auto; display: block; }
+    #chart { width: 100%; flex: 1; min-height: 280px; height: auto; display: block; font-family: var(--font-mono); }
     .disclaimer {
+      font-family: var(--font-sans);
       font-size: 12px;
       color: var(--color-text-tertiary);
       margin-top: 24px;
