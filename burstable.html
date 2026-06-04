@@ -65,7 +65,6 @@
     }
     .inputs-panel { padding: 20px var(--panel-padding-x); }
     .inputs-panel .col-heading { margin-bottom: 12px; }
-    .inputs-panel .section-heading-row { margin-bottom: 12px; }
     .inputs-panel .field { margin-bottom: 14px; }
     .inputs-panel .field:last-child { margin-bottom: 0; }
     .inputs-panel .field-header {
@@ -73,31 +72,26 @@
       align-items: center;
     }
     .inputs-panel .field-label { line-height: 1.2; }
+    .field-machine .field-header { margin-bottom: 0; }
     .col-heading {
       font-size: 18px;
       font-weight: 600;
       color: var(--color-text-primary);
       margin: 0 0 16px;
     }
-    .section-heading-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .section-heading-row .col-heading { margin-bottom: 0; }
-    .section-heading-row select {
-      width: auto;
-      min-width: 72px;
+    .field-machine-select {
+      width: 64px;
       height: 32px;
       flex-shrink: 0;
       border-radius: var(--border-radius-md);
       border: 1px solid var(--color-border-tertiary);
-      padding: 0 28px 0 10px;
-      font-size: 14px;
-      font-weight: 500;
+      padding: 0 10px 0 26px;
+      font-size: 15px;
+      font-weight: 600;
       font-family: inherit;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      text-align-last: right;
       background-color: var(--bg-input);
       color: var(--color-text-primary);
       cursor: pointer;
@@ -105,11 +99,12 @@
       -webkit-appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
-      background-position: right 8px center;
+      background-position: left 10px center;
     }
-    .section-heading-row select:focus {
+    .field-machine-select:focus {
       outline: 2px solid var(--accent);
       outline-offset: 1px;
+      border-color: var(--color-border-secondary);
     }
     .field-header {
       display: flex;
@@ -135,7 +130,7 @@
     .field-input {
       width: 64px;
       height: 32px;
-      padding: 0 8px;
+      padding: 0 10px;
       font-size: 15px;
       font-weight: 600;
       font-family: inherit;
@@ -300,7 +295,7 @@
       .main-layout { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
-      .section-heading-row select { min-width: 64px; }
+      .field-machine-select { min-width: 64px; }
     }
   </style>
 </head>
@@ -313,13 +308,7 @@
 
     <div class="main-layout">
       <aside class="panel inputs-panel" id="inputs">
-        <div class="section-heading-row">
-          <h2 class="col-heading">Annual plan</h2>
-          <select id="macMachine" aria-label="macOS machine type">
-            <option value="mac_m2" selected>M2</option>
-            <option value="mac_m4">M4</option>
-          </select>
-        </div>
+        <h2 class="col-heading">Annual plan</h2>
 
         <div class="field">
           <div class="field-header">
@@ -359,6 +348,16 @@
             />
           </div>
           <input type="range" id="burst" min="0" max="100" value="10" aria-labelledby="burst-num" />
+        </div>
+
+        <div class="field field-machine">
+          <div class="field-header">
+            <span class="field-label">Machine type</span>
+            <select id="macMachine" class="field-machine-select" aria-label="Machine type">
+              <option value="mac_m2" selected>M2</option>
+              <option value="mac_m4">M4</option>
+            </select>
+          </div>
         </div>
       </aside>
 
