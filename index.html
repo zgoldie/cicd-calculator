@@ -74,6 +74,32 @@
       margin-bottom: 6px;
       align-items: center;
     }
+    .field-input {
+      width: 64px;
+      height: 32px;
+      padding: 0 10px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      color: var(--color-text-primary);
+      background: var(--bg-input);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      flex-shrink: 0;
+    }
+    .field-input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      border-color: var(--color-border-secondary);
+    }
+    .field-input::-webkit-outer-spin-button,
+    .field-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .field-input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
     .section-divider {
       border-top: 1px solid var(--color-border-tertiary);
       margin: 8px 0 20px;
@@ -359,14 +385,14 @@
         <div class="field" data-key="teamSize">
           <div class="field-header">
             <span class="field-label">Team members</span>
-            <span class="field-value" id="teamSize-val">30</span>
+            <input type="number" class="field-input" id="teamSize-num" min="1" max="100" value="30" inputmode="numeric" aria-label="Team members" />
           </div>
           <input type="range" id="teamSize" min="1" max="100" value="30" />
         </div>
         <div class="field" data-key="concurrencies">
           <div class="field-header">
             <span class="field-label">Concurrencies</span>
-            <span class="field-value" id="concurrencies-val">10</span>
+            <input type="number" class="field-input" id="concurrencies-num" min="1" max="100" value="10" inputmode="numeric" aria-label="Concurrencies" />
           </div>
           <input type="range" id="concurrencies" min="1" max="100" value="10" />
         </div>
@@ -382,14 +408,14 @@
         <div class="field">
           <div class="field-header">
             <span class="field-label">Daily builds per developer</span>
-            <span class="field-value" id="macBuildsPerDev-val">5</span>
+            <input type="number" class="field-input" id="macBuildsPerDev-num" min="0" max="20" value="5" inputmode="numeric" aria-label="macOS daily builds per developer" />
           </div>
           <input type="range" id="macBuildsPerDev" min="0" max="20" step="1" value="5" />
         </div>
         <div class="field">
           <div class="field-header">
-            <span class="field-label">Avg CI/CD time</span>
-            <span class="field-value" id="avgTimeMac-val">18 min</span>
+            <span class="field-label">Avg CI/CD time (min)</span>
+            <input type="number" class="field-input" id="avgTimeMac-num" min="1" max="60" value="18" inputmode="numeric" aria-label="macOS average CI/CD time in minutes" />
           </div>
           <input type="range" id="avgTimeMac" min="1" max="60" value="18" />
         </div>
@@ -399,14 +425,14 @@
         <div class="field">
           <div class="field-header">
             <span class="field-label">Daily builds per developer</span>
-            <span class="field-value" id="linBuildsPerDev-val">5</span>
+            <input type="number" class="field-input" id="linBuildsPerDev-num" min="0" max="20" value="5" inputmode="numeric" aria-label="Linux daily builds per developer" />
           </div>
           <input type="range" id="linBuildsPerDev" min="0" max="20" step="1" value="5" />
         </div>
         <div class="field">
           <div class="field-header">
-            <span class="field-label">Avg CI/CD time</span>
-            <span class="field-value" id="avgTimeLinux-val">19 min</span>
+            <span class="field-label">Avg CI/CD time (min)</span>
+            <input type="number" class="field-input" id="avgTimeLinux-num" min="1" max="60" value="19" inputmode="numeric" aria-label="Linux average CI/CD time in minutes" />
           </div>
           <input type="range" id="avgTimeLinux" min="1" max="60" value="19" />
         </div>
@@ -620,6 +646,15 @@
       axis: getComputedStyle(document.documentElement).getPropertyValue("--chart-axis").trim() || "#c5d0dc",
     };
 
+    const FIELD_BOUNDS = {
+      teamSize: { min: 1, max: 100 },
+      concurrencies: { min: 1, max: 100 },
+      macBuildsPerDev: { min: 0, max: 20 },
+      linBuildsPerDev: { min: 0, max: 20 },
+      avgTimeMac: { min: 1, max: 60 },
+      avgTimeLinux: { min: 1, max: 60 },
+    };
+
     const state = {
       teamSize: 30,
       concurrencies: 10,
@@ -630,6 +665,44 @@
       macMachine: "mac_m2",
       altProvider: "github",
     };
+
+    function clampField(id, raw) {
+      const b = FIELD_BOUNDS[id];
+      const n = Math.round(Number(raw));
+      if (!Number.isFinite(n)) return b.min;
+      return Math.min(b.max, Math.max(b.min, n));
+    }
+
+    function setField(id, value) {
+      const v = clampField(id, value);
+      document.getElementById(id).value = v;
+      const num = document.getElementById(id + "-num");
+      if (document.activeElement !== num) num.value = v;
+      return v;
+    }
+
+    function bindNumericPair(id) {
+      const slider = document.getElementById(id);
+      const num = document.getElementById(id + "-num");
+
+      slider.addEventListener("input", () => {
+        setField(id, slider.value);
+        updateResults();
+      });
+      num.addEventListener("input", () => {
+        if (num.value === "" || num.value === "-") return;
+        setField(id, num.value);
+        updateResults();
+      });
+      num.addEventListener("change", () => {
+        setField(id, num.value === "" ? FIELD_BOUNDS[id].min : num.value);
+        updateResults();
+      });
+      num.addEventListener("blur", () => {
+        setField(id, num.value === "" ? FIELD_BOUNDS[id].min : num.value);
+        updateResults();
+      });
+    }
 
     function providerIds() {
       return ["codemagic", state.altProvider, "bitrise"];
@@ -694,13 +767,13 @@
 
     function updateResults() {
       readInputs();
+      setField("teamSize", state.teamSize);
+      setField("concurrencies", state.concurrencies);
+      setField("macBuildsPerDev", state.macBuildsPerDev);
+      setField("linBuildsPerDev", state.linBuildsPerDev);
+      setField("avgTimeMac", state.avgTimeMac);
+      setField("avgTimeLinux", state.avgTimeLinux);
       const d = derived();
-      document.getElementById("teamSize-val").textContent = state.teamSize;
-      document.getElementById("concurrencies-val").textContent = state.concurrencies;
-      document.getElementById("macBuildsPerDev-val").textContent = state.macBuildsPerDev;
-      document.getElementById("linBuildsPerDev-val").textContent = state.linBuildsPerDev;
-      document.getElementById("avgTimeMac-val").textContent = state.avgTimeMac + " min";
-      document.getElementById("avgTimeLinux-val").textContent = state.avgTimeLinux + " min";
       const out = renderCards(d);
       renderChart(out);
     }
@@ -881,9 +954,12 @@
       hit.addEventListener("mouseleave", () => { tooltip.style.display = "none"; });
     }
 
-    document.querySelectorAll("#inputs input").forEach((el) => {
-      el.addEventListener("input", updateResults);
-    });
+    bindNumericPair("teamSize");
+    bindNumericPair("concurrencies");
+    bindNumericPair("macBuildsPerDev");
+    bindNumericPair("linBuildsPerDev");
+    bindNumericPair("avgTimeMac");
+    bindNumericPair("avgTimeLinux");
 
     document.getElementById("macMachine").addEventListener("change", updateResults);
 
