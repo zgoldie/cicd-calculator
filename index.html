@@ -268,18 +268,19 @@
     .card-swatch { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
     .card-name { font-size: 13px; color: #dce3eb; font-weight: 500; }
     .card-provider-select {
-      flex: 1;
-      min-width: 0;
+      width: fit-content;
       max-width: 100%;
-      height: 28px;
+      flex: 0 0 auto;
+      height: auto;
       border-radius: var(--border-radius-md);
       border: 1px solid var(--color-border-tertiary);
-      padding: 0 28px 0 10px;
-      font-size: 12px;
+      padding: 2px 20px 2px 6px;
+      font-size: 13px;
       font-weight: 500;
       font-family: inherit;
-      text-align: right;
-      text-align-last: right;
+      line-height: 1.25;
+      text-align: left;
+      text-align-last: left;
       color: #dce3eb;
       background-color: var(--bg-input);
       cursor: pointer;
@@ -287,7 +288,7 @@
       -webkit-appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
-      background-position: right 8px center;
+      background-position: right 2px center;
     }
     .card-provider-select:focus {
       outline: 2px solid var(--accent);
@@ -779,7 +780,7 @@
     }
 
     function buildChartData(d) {
-      const maxX = Math.max(d.totalBuilds * 2.5, 200);
+      const maxX = Math.max(d.totalBuilds * 2, 200);
       const steps = 80;
       const points = [];
       for (let i = 0; i <= steps; i++) {
