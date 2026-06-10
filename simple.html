@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CI/CD Calculator</title>
+  <title>CI/CD Calculator · Simple</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,14 +16,10 @@
       --bg-card: #1a1d21;
       --bg-input: #14171b;
       --accent: #0052ff;
-      --accent-hover: #1a63ff;
       --color-text-primary: #ffffff;
       --color-text-secondary: #94a3b8;
       --color-text-tertiary: #64748b;
-      --color-text-success: #3ee89a;
-      --color-background-primary: var(--bg-card);
       --color-background-secondary: #22262c;
-      --color-background-success: rgba(62, 232, 154, 0.14);
       --color-border-tertiary: #2a3038;
       --color-border-secondary: #3d4550;
       --border-radius-md: 8px;
@@ -32,10 +28,6 @@
       --chart-grid: #2a3038;
       --chart-muted: #9daab8;
       --chart-axis: #c5d0dc;
-      --provider-codemagic: #34d399;
-      --provider-github: #60a5fa;
-      --provider-expo: #7c8aff;
-      --provider-bitrise: #94a3b8;
     }
     * { box-sizing: border-box; }
     body {
@@ -47,32 +39,62 @@
       -webkit-font-smoothing: antialiased;
       font-feature-settings: "tnum" 1;
     }
-    .wrap { max-width: 1280px; margin: 0 auto; }
-    .page-header { margin-bottom: 24px; padding-left: var(--panel-padding-x); }
-    h1 { font-size: 26px; font-weight: 600; margin: 0; letter-spacing: 0; }
+    .wrap { max-width: 1120px; margin: 0 auto; }
+    .page-header {
+      margin-bottom: 24px;
+      padding-left: var(--panel-padding-x);
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    h1 { font-size: 26px; font-weight: 600; margin: 0; }
+    .page-tag {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--color-text-tertiary);
+    }
     .main-layout {
       display: grid;
-      grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+      grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
       grid-template-rows: auto 1fr;
       gap: 24px;
       align-items: stretch;
     }
     .inputs-panel {
       grid-row: 1 / 3;
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 0;
-    }
-    .inputs-panel.panel {
+      background: var(--bg-card);
+      border: 1px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
       padding: 20px var(--panel-padding-x);
     }
-    .inputs-panel .col-heading { margin-bottom: 12px; }
-    .inputs-panel .section-divider { margin: 6px 0 14px; }
-    .inputs-panel .section-heading-row { margin-bottom: 12px; }
-    .inputs-panel .field { margin-bottom: 14px; }
-    .inputs-panel .field-header {
-      margin-bottom: 6px;
+    .col-heading {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 14px;
+    }
+    .field { margin-bottom: 14px; }
+    .field:last-of-type { margin-bottom: 0; }
+    .field-header {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
+      gap: 16px;
+      margin-bottom: 6px;
+    }
+    .field-label {
+      font-size: 16px;
+      color: var(--color-text-primary);
+      font-weight: 500;
+      line-height: 1.3;
+    }
+    .field-hint {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      line-height: 1.4;
+      font-variant-numeric: tabular-nums;
     }
     .field-input {
       width: 64px;
@@ -100,90 +122,6 @@
       -moz-appearance: textfield;
       appearance: textfield;
     }
-    .section-divider {
-      border-top: 1px solid var(--color-border-tertiary);
-      margin: 8px 0 20px;
-    }
-    .inputs-panel .field:last-child { margin-bottom: 0; }
-    .inputs-panel .field-label { line-height: 1.2; }
-    .panel {
-      background: var(--bg-card);
-      border: 1px solid var(--color-border-tertiary);
-      border-radius: var(--border-radius-lg);
-      padding: 22px var(--panel-padding-x);
-    }
-    .col-heading {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--color-text-primary);
-      letter-spacing: 0;
-      margin: 0 0 16px;
-    }
-    .section-heading-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .section-heading-row .col-heading { margin-bottom: 0; }
-    .section-heading-row select {
-      width: auto;
-      min-width: 72px;
-      height: 32px;
-      flex-shrink: 0;
-      border-radius: var(--border-radius-md);
-      border: 1px solid var(--color-border-tertiary);
-      padding: 0 30px 0 12px;
-      font-size: 13px;
-      font-weight: 500;
-      font-family: inherit;
-      text-align: right;
-      text-align-last: right;
-      background-color: var(--bg-input);
-      color: var(--color-text-primary);
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-    }
-    .section-heading-row select:focus {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }
-    .field { margin-bottom: 20px; }
-    .field-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      margin-bottom: 10px;
-    }
-    .field-hint {
-      display: block;
-      margin-top: 6px;
-      font-size: 12px;
-      color: var(--color-text-tertiary);
-      font-variant-numeric: tabular-nums;
-    }
-    .field-label {
-      font-size: 14px;
-      color: var(--color-text-secondary);
-      font-weight: 500;
-      line-height: 1.25;
-    }
-    .field-value {
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--color-text-primary);
-      min-width: 80px;
-      padding-right: 12px;
-      text-align: right;
-      flex-shrink: 0;
-      font-variant-numeric: tabular-nums;
-    }
     input[type="range"] {
       width: 100%;
       height: 6px;
@@ -209,14 +147,6 @@
       cursor: pointer;
       border: none;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
-      transition: box-shadow 0.15s ease;
-    }
-    input[type="range"]:hover::-webkit-slider-thumb {
-      background: #fff;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
-    }
-    input[type="range"]:focus-visible::-webkit-slider-thumb {
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--color-border-secondary);
     }
     input[type="range"]::-moz-range-track {
       height: 6px;
@@ -231,28 +161,45 @@
       background: #f1f5f9;
       cursor: pointer;
       border: none;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
-      transition: background 0.15s ease, box-shadow 0.15s ease;
     }
-    input[type="range"]:hover::-moz-range-thumb {
-      background: #fff;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
-    }
-    input[type="range"]:focus-visible::-moz-range-thumb {
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--color-border-secondary);
-    }
-    select {
-      width: 100%;
-      height: 38px;
+    .field-machine .field-header { margin-bottom: 0; align-items: center; }
+    .field-machine-select {
+      width: 64px;
+      height: 32px;
+      flex-shrink: 0;
       border-radius: var(--border-radius-md);
       border: 1px solid var(--color-border-tertiary);
-      padding: 0 12px;
-      font-size: 14px;
+      padding: 0 10px 0 26px;
+      font-size: 15px;
+      font-weight: 600;
       font-family: inherit;
-      background: var(--bg-input);
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      text-align-last: right;
+      background-color: var(--bg-input);
       color: var(--color-text-primary);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 10px center;
     }
-    select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .field-machine-select:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      border-color: var(--color-border-secondary);
+    }
+    .assumptions {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--color-border-tertiary);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      line-height: 1.5;
+    }
+    .assumptions strong { color: var(--color-text-secondary); font-weight: 500; }
     .output-top {
       grid-column: 2;
       grid-row: 1;
@@ -262,15 +209,18 @@
       min-width: 0;
     }
     .usage-summary {
-      font-size: 13px;
-      color: var(--color-text-secondary);
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--color-border-tertiary);
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      line-height: 1.5;
       font-variant-numeric: tabular-nums;
     }
     .cards {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
-      flex-shrink: 0;
       min-width: 0;
     }
     .card {
@@ -278,9 +228,8 @@
       border-radius: var(--border-radius-lg);
       background: var(--color-background-secondary);
       border: 1px solid var(--color-border-tertiary);
-      min-width: 160px;
+      min-width: 150px;
       flex: 1;
-      position: relative;
     }
     .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .card-swatch { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
@@ -298,7 +247,6 @@
       font-family: inherit;
       line-height: 1.25;
       text-align: left;
-      text-align-last: left;
       color: #dce3eb;
       background-color: var(--bg-input);
       cursor: pointer;
@@ -308,10 +256,7 @@
       background-repeat: no-repeat;
       background-position: right 2px center;
     }
-    .card-provider-select:focus {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }
+    .card-provider-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
     .card-cost { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
     .card-cost.na { font-size: 22px; color: var(--color-text-tertiary); }
     .card-period {
@@ -326,8 +271,6 @@
       margin-top: 6px;
       line-height: 1.45;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .chart-box {
       grid-column: 2;
@@ -337,11 +280,16 @@
       border-radius: var(--border-radius-lg);
       padding: 20px 12px 16px 8px;
       min-height: 320px;
-      min-width: 0;
       display: flex;
       flex-direction: column;
     }
-    #chart { width: 100%; flex: 1; min-height: 280px; height: auto; display: block; font-family: var(--font-mono); }
+    #chart {
+      width: 100%;
+      flex: 1;
+      min-height: 280px;
+      display: block;
+      font-family: var(--font-mono);
+    }
     .disclaimer {
       font-family: var(--font-sans);
       font-size: 12px;
@@ -350,21 +298,9 @@
       line-height: 1.55;
       padding: 0 var(--panel-padding-x);
     }
-    .disclaimer-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px 32px;
-    }
-    .disclaimer ul {
-      margin: 0;
-      padding-left: 1.1em;
-    }
+    .disclaimer ul { margin: 0; padding-left: 1.1em; max-width: 72ch; }
     .disclaimer li + li { margin-top: 6px; }
     .disclaimer strong { color: var(--color-text-secondary); font-weight: 500; }
-    @media (max-width: 640px) {
-      .disclaimer-grid { grid-template-columns: 1fr; gap: 0; }
-      .disclaimer ul + ul { margin-top: 6px; }
-    }
     .tooltip {
       position: fixed;
       pointer-events: none;
@@ -381,111 +317,86 @@
       color: var(--color-text-primary);
     }
     .tooltip .tip-muted { color: var(--color-text-tertiary); font-size: 11px; }
-    @media (max-width: 960px) {
+    @media (max-width: 900px) {
       .main-layout { grid-template-columns: 1fr; grid-template-rows: auto; }
       .inputs-panel { grid-row: auto; grid-column: 1; }
       .output-top, .chart-box { grid-column: 1; grid-row: auto; }
       .chart-box { min-height: 360px; }
-    }
-    @media (max-width: 640px) {
-      .section-heading-row select { min-width: 64px; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="page-header">
-      <h1>CI/CD Calculator</h1>
+      <h1>CI/CD pricing</h1>
+      <span class="page-tag">Simple · mobile team defaults</span>
     </header>
 
     <div class="main-layout">
-      <aside class="panel inputs-panel" id="inputs">
-        <h2 class="col-heading">Team</h2>
-        <div class="field" data-key="teamSize">
+      <aside class="inputs-panel" id="inputs">
+        <div class="field">
           <div class="field-header">
             <span class="field-label">Team members</span>
             <input type="number" class="field-input" id="teamSize-num" min="1" max="100" value="30" inputmode="numeric" aria-label="Team members" />
           </div>
           <input type="range" id="teamSize" min="1" max="100" value="30" />
         </div>
-        <div class="field" data-key="concurrencies">
-          <div class="field-header">
-            <span class="field-label">Concurrencies</span>
-            <input type="number" class="field-input" id="concurrencies-num" min="1" max="100" value="10" inputmode="numeric" aria-label="Concurrencies" />
-          </div>
-          <input type="range" id="concurrencies" min="1" max="100" value="10" />
-        </div>
 
-        <div class="section-divider"></div>
-        <div class="section-heading-row">
-          <h2 class="col-heading">macOS builds</h2>
-          <select id="macMachine" aria-label="macOS machine type">
-            <option value="mac_m2" selected>M2</option>
-            <option value="mac_m4">M4</option>
-          </select>
-        </div>
-        <div class="field">
+        <div class="field" style="margin-top: 18px">
           <div class="field-header">
             <span class="field-label">Daily builds per developer</span>
-            <input type="number" class="field-input" id="macBuildsPerDev-num" min="0" max="20" value="5" inputmode="numeric" aria-label="macOS daily builds per developer" />
+            <input type="number" class="field-input" id="releasesPerDev-num" min="0" max="20" value="5" inputmode="numeric" aria-label="Releases per developer per day" />
           </div>
-          <input type="range" id="macBuildsPerDev" min="0" max="20" step="1" value="5" />
-          <span class="field-hint" id="mac-builds-hint"></span>
-        </div>
-        <div class="field">
-          <div class="field-header">
-            <span class="field-label">Avg CI/CD time (min)</span>
-            <input type="number" class="field-input" id="avgTimeMac-num" min="1" max="60" value="18" inputmode="numeric" aria-label="macOS average CI/CD time in minutes" />
-          </div>
-          <input type="range" id="avgTimeMac" min="1" max="60" value="18" />
+          <input type="range" id="releasesPerDev" min="0" max="20" step="1" value="5" />
         </div>
 
-        <div class="section-divider"></div>
-        <h2 class="col-heading">Linux builds</h2>
         <div class="field">
           <div class="field-header">
-            <span class="field-label">Daily builds per developer</span>
-            <input type="number" class="field-input" id="linBuildsPerDev-num" min="0" max="20" value="5" inputmode="numeric" aria-label="Linux daily builds per developer" />
+            <span class="field-label">Avg build time (min)</span>
+            <input type="number" class="field-input" id="avgTime-num" min="1" max="60" value="18" inputmode="numeric" aria-label="Average build time in minutes" />
           </div>
-          <input type="range" id="linBuildsPerDev" min="0" max="20" step="1" value="5" />
-          <span class="field-hint" id="lin-builds-hint"></span>
+          <input type="range" id="avgTime" min="1" max="60" value="18" />
         </div>
-        <div class="field">
+
+        <div class="field field-machine" style="margin-top: 18px">
           <div class="field-header">
-            <span class="field-label">Avg CI/CD time (min)</span>
-            <input type="number" class="field-input" id="avgTimeLinux-num" min="1" max="60" value="19" inputmode="numeric" aria-label="Linux average CI/CD time in minutes" />
+            <span class="field-label">macOS machine</span>
+            <select id="macMachine" class="field-machine-select" aria-label="macOS machine type">
+              <option value="mac_m2" selected>M2</option>
+              <option value="mac_m4">M4</option>
+            </select>
           </div>
-          <input type="range" id="avgTimeLinux" min="1" max="60" value="19" />
         </div>
+
+        <div class="assumptions">
+          <strong>Assumed:</strong> each release runs iOS + Android (2 platform builds).
+          50/50 mix, same CI time on both. Concurrencies ≈ 1 per 3 team members.
+        </div>
+
+        <div class="usage-summary" id="usage-summary"></div>
       </aside>
 
       <div class="output-top">
-        <div class="usage-summary" id="usage-summary"></div>
         <div class="cards" id="cards"></div>
       </div>
+
       <div class="chart-box">
         <svg id="chart" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet" aria-label="Cost comparison chart"></svg>
       </div>
     </div>
+
     <div class="disclaimer">
-      <div class="disclaimer-grid">
-        <ul>
-          <li>Estimates based on published pricing as of early 2026.</li>
-          <li>Builds per month = daily builds per developer × team size × 21 (weekdays only).</li>
-          <li>Estimates may not reflect enterprise agreements, volume discounts, or promotional offers.</li>
-        </ul>
-        <ul>
-          <li><strong>Codemagic:</strong> Annual — M2 $3,990/yr (+$1,500/yr per extra), M4 $5,400/yr (+$1,800/yr per extra), 3 concurrencies included; low volume uses PAYG per minute instead.</li>
-          <li id="disclaimer-alt"><strong>GitHub Actions:</strong> Team plan ($4/user/mo) + macOS @ $0.102/min (M2); no M4 macOS runner.</li>
-          <li><strong>Bitrise:</strong> Pro or Enterprise tier + PAYG overages. macOS @ $0.0144/min (M2), $0.0293/min (M4).</li>
-        </ul>
-      </div>
+      <ul>
+        <li>Estimates based on published pricing as of early 2026. Not a quote.</li>
+        <li>Platform builds / month = releases × 2 (iOS + Android) × team × 21 weekdays.</li>
+        <li>Concurrencies = max(1, ⌈team ÷ 3⌉). Chart sweeps builds up to 2× your selection.</li>
+        <li id="disclaimer-alt"><strong>GitHub Actions:</strong> Team plan ($4/user/mo) + macOS @ $0.102/min (M2); no M4 macOS runner.</li>
+      </ul>
     </div>
   </div>
   <div class="tooltip" id="tooltip"></div>
 
   <script>
-    // Per-minute USD — mac tiers aligned to published 2026 competitor equivalents
     const RATES = {
       codemagic: { mac_m2: 0.095, mac_m4: 0.114, linux_std: 0.045 },
       github:    { mac_m2: 0.102, mac_m4: 0.102, linux_std: 0.022 },
@@ -497,12 +408,6 @@
     };
     const CM_BASE_CONCURRENCIES = 3;
     const CM_MINUTES_PER_CONCURRENCY = 43200;
-    function cmMonthly(plan) {
-      return plan.annualYearly / 12;
-    }
-    function cmExtraMonthly(plan) {
-      return plan.extraConcurrencyYearly / 12;
-    }
     const BITRISE_PRO_TIERS = [
       { builds: 250,  macMin: 2000,  linMin: 1000,  monthly: 199.67  },
       { builds: 500,  macMin: 4000,  linMin: 2000,  monthly: 399.33  },
@@ -513,9 +418,6 @@
     ];
     const BITRISE_PAYG_PER_BUILD = 0.72;
     const BITRISE_PAYG_LIN_MIN = 0.0134;
-    function bitriseMacRate(macMch) {
-      return RATES.bitrise[macMch] ?? RATES.bitrise.mac_m2;
-    }
     const BITRISE_STARTER_TIERS = [
       { monthly: 89,  concurrency: 1, maxTeam: 2  },
       { monthly: 179, concurrency: 2, maxTeam: 5  },
@@ -533,59 +435,65 @@
     };
     const EAS_WORKFLOW_PER_MIN = { macos: 0.075, linux: 0.018 };
 
-    function easSplit(builds, macRatio, avgMac, avgLinux) {
-      const iosBuilds = Math.round(builds * macRatio);
+    const WEEKDAYS_PER_MONTH = 21;
+    const MAC_RATIO = 0.5;
+    const CONCURRENCY_TEAM_RATIO = 3;
+
+    function cmMonthly(plan) { return plan.annualYearly / 12; }
+    function cmExtraMonthly(plan) { return plan.extraConcurrencyYearly / 12; }
+    function bitriseMacRate(macMch) { return RATES.bitrise[macMch] ?? RATES.bitrise.mac_m2; }
+
+    function easSplit(builds, avgTime) {
+      const iosBuilds = Math.round(builds * MAC_RATIO);
       const androidBuilds = Math.max(0, builds - iosBuilds);
-      const testMinutes = iosBuilds * avgMac + androidBuilds * avgLinux;
+      const testMinutes = builds * avgTime;
       return { iosBuilds, androidBuilds, testMinutes };
     }
 
-    function calcExpo(builds, avgMac, avgLinux, macRatio, macMch, _lin, _team, concurrencies) {
+    function calcExpo(builds, avgTime, macMch, team, concurrencies) {
       const worker = macMch === "mac_m4" ? "large" : "medium";
       const prices = EAS_BUILD_PRICE[worker];
-      const { iosBuilds, androidBuilds, testMinutes } = easSplit(builds, macRatio, avgMac, avgLinux);
+      const { iosBuilds, androidBuilds, testMinutes } = easSplit(builds, avgTime);
       const buildUsage = iosBuilds * prices.ios + androidBuilds * prices.android;
       const buildOverage = Math.max(0, buildUsage - EAS_PRODUCTION.buildCredit);
       const extraConc =
         Math.max(0, concurrencies - EAS_PRODUCTION.includedConcurrency) * EAS_PRODUCTION.extraConcurrencyMonthly;
       const workflowRate =
-        macRatio * EAS_WORKFLOW_PER_MIN.macos + (1 - macRatio) * EAS_WORKFLOW_PER_MIN.linux;
+        MAC_RATIO * EAS_WORKFLOW_PER_MIN.macos + (1 - MAC_RATIO) * EAS_WORKFLOW_PER_MIN.linux;
       const testCost = testMinutes * workflowRate;
       const cost = EAS_PRODUCTION.monthly + buildOverage + extraConc + testCost;
-      const label =
-        `Production · ${iosBuilds} iOS + ${androidBuilds} And · ${worker} · ~${Math.round(testMinutes)} test min`;
+      const label = `for ${concurrencies} concurrencies · ${fmtMinCount(testMinutes)} workflow min`;
       return { cost, label };
     }
 
     const PROVIDERS = {
       codemagic: {
         name: "Codemagic", color: "#34d399", strokeWidth: 2,
-        calculate(builds, avgMac, avgLinux, macRatio, macMch, _lin, _team, concurrencies) {
-          const macMin = builds * macRatio * avgMac;
-          const linMin = builds * (1 - macRatio) * avgLinux;
+        calculate(builds, avgTime, macMch, _team, concurrencies) {
+          const macMin = builds * MAC_RATIO * avgTime;
+          const linMin = builds * (1 - MAC_RATIO) * avgTime;
           const totalMin = macMin + linMin;
           const payg = macMin * RATES.codemagic[macMch] + linMin * RATES.codemagic.linux_std;
           const plan = CM_PLANS[macMch] || CM_PLANS.mac_m2;
-          const mLabel = macMch === "mac_m4" ? "M4" : "M2";
           const slotsForVolume = Math.ceil(totalMin / CM_MINUTES_PER_CONCURRENCY);
           const requiredSlots = Math.max(CM_BASE_CONCURRENCIES, concurrencies, slotsForVolume);
           const extraSlots = Math.max(0, requiredSlots - CM_BASE_CONCURRENCIES);
           const annualCost = Math.round(cmMonthly(plan) + extraSlots * cmExtraMonthly(plan));
           if (payg < annualCost) {
-            return { cost: Math.round(payg), label: codemagicPaygLabel(macRatio, macMch) };
+            return { cost: Math.round(payg), label: `for ${fmtMinCount(totalMin)} CI minutes` };
           }
-          const label = extraSlots === 0
-            ? `Annual ${mLabel} · $${plan.annualYearly.toLocaleString()}/yr (3 concurrencies)`
-            : `Annual ${mLabel} · $${plan.annualYearly.toLocaleString()}/yr + ${extraSlots}×$${plan.extraConcurrencyYearly.toLocaleString()}/yr`;
-          return { cost: annualCost, label };
+          return {
+            cost: annualCost,
+            label: `${requiredSlots} unlimited concurrencies`,
+          };
         },
       },
       bitrise: {
         name: "Bitrise", color: "#94a3b8", strokeWidth: 2,
-        calculate(builds, avgMac, avgLinux, macRatio, macMch, _lin, team, concurrencies) {
-          if (builds === 0) return { cost: 0, label: "No usage" };
-          const macMin = builds * macRatio * avgMac;
-          const linMin = builds * (1 - macRatio) * avgLinux;
+        calculate(builds, avgTime, macMch, team, concurrencies) {
+          if (builds === 0) return { cost: 0, label: "no usage" };
+          const macMin = builds * MAC_RATIO * avgTime;
+          const linMin = builds * (1 - MAC_RATIO) * avgTime;
           const totalMin = macMin + linMin;
           let starterResult = null;
           for (let i = 0; i < BITRISE_STARTER_TIERS.length; i++) {
@@ -593,10 +501,7 @@
             if (team <= st.maxTeam && concurrencies <= st.concurrency) {
               const maxMin = st.concurrency * 43200;
               if (totalMin <= maxMin) {
-                starterResult = {
-                  cost: st.monthly,
-                  label: `Starter Tier ${i + 1} plan`,
-                };
+                starterResult = { cost: st.monthly, label: `for ${st.concurrency} concurrency` };
                 break;
               }
             }
@@ -618,15 +523,13 @@
               + Math.max(0, builds - topTier.builds) * BITRISE_PAYG_PER_BUILD
               + Math.max(0, macMin - topTier.macMin) * macRate
               + Math.max(0, linMin - topTier.linMin) * BITRISE_PAYG_LIN_MIN;
-            proLabel = `Enterprise plan + PAYG @ ${fmtMinRate(macRate)}`;
+            proLabel = `for ${fmtMinCount(totalMin)} CI minutes`;
           } else {
             const paygCost = Math.max(0, builds - chosenTier.builds) * BITRISE_PAYG_PER_BUILD
               + Math.max(0, macMin - chosenTier.macMin) * macRate
               + Math.max(0, linMin - chosenTier.linMin) * BITRISE_PAYG_LIN_MIN;
             proCost = chosenTier.monthly + paygCost;
-            proLabel = paygCost > 0.5
-              ? `Pro Tier ${tierIdx} + PAYG @ ${fmtMinRate(macRate)}`
-              : `Pro Tier ${tierIdx} plan`;
+            proLabel = `for ${fmtMinCount(totalMin)} CI minutes`;
           }
           if (starterResult && starterResult.cost <= proCost) return starterResult;
           return { cost: proCost, label: proLabel };
@@ -639,46 +542,35 @@
         name: "GitHub Actions",
         color: "#60a5fa",
         strokeWidth: 2,
-        calculate(builds, avgMac, avgLinux, macRatio, macMch, _lin, team) {
+        calculate(builds, avgTime, macMch, team) {
           if (macMch === "mac_m4") {
             return { cost: null, label: "No M4 macOS runner", na: true };
           }
-          const macMin = builds * macRatio * avgMac;
-          const linMin = builds * (1 - macRatio) * avgLinux;
+          const macMin = builds * MAC_RATIO * avgTime;
+          const linMin = builds * (1 - MAC_RATIO) * avgTime;
+          const totalMin = macMin + linMin;
           const usage = macMin * RATES.github.mac_m2 + linMin * RATES.github.linux_std;
           const teamCost = team * 4;
-          return { cost: usage + teamCost, label: `Team plan ($${teamCost}/mo) + macOS @ ${fmtMinRate(RATES.github.mac_m2)}` };
+          return { cost: usage + teamCost, label: `for ${fmtMinCount(totalMin)} CI minutes` };
         },
       },
       expo: {
         name: "Expo (EAS)",
         color: "#7c8aff",
         strokeWidth: 2,
-        calculate: calcExpo,
+        calculate(builds, avgTime, macMch, team, concurrencies) {
+          return calcExpo(builds, avgTime, macMch, team, concurrencies);
+        },
       },
     };
-
-    const WEEKDAYS_PER_MONTH = 21;
 
     const fmt = (n) => n >= 1000 ? "$" + (n / 1000).toFixed(1) + "k" : "$" + Math.round(n);
     const fmtFull = (n) => "$" + Math.round(n).toLocaleString();
     const fmtMinRate = (r) => `$${parseFloat(r.toFixed(4))}/min`;
-
-    function codemagicPaygLabel(macRatio, macMch) {
-      const macRate = RATES.codemagic[macMch];
-      const linRate = RATES.codemagic.linux_std;
-      if (macRatio <= 0) return `Pay as you go · Linux @ ${fmtMinRate(linRate)}`;
-      if (macRatio >= 1) return `Pay as you go · macOS @ ${fmtMinRate(macRate)}`;
-      return `Pay as you go · macOS @ ${fmtMinRate(macRate)} · Linux @ ${fmtMinRate(linRate)}`;
-    }
-
-    function updateBuildSummary(d) {
-      document.getElementById("mac-builds-hint").textContent =
-        `· ${d.macBuilds.toLocaleString()} team macOS builds / month`;
-      document.getElementById("lin-builds-hint").textContent =
-        `· ${d.linBuilds.toLocaleString()} team Linux builds / month`;
-      document.getElementById("usage-summary").textContent =
-        `${d.totalBuilds.toLocaleString()} builds / month · ~${d.totalCIMinutes.toLocaleString()} CI min`;
+    function fmtMinCount(n) {
+      const rounded = Math.round(n);
+      if (rounded >= 1000) return Math.round(rounded / 1000) + "k";
+      return rounded.toLocaleString();
     }
 
     const CHART = {
@@ -689,23 +581,21 @@
 
     const FIELD_BOUNDS = {
       teamSize: { min: 1, max: 100 },
-      concurrencies: { min: 1, max: 100 },
-      macBuildsPerDev: { min: 0, max: 20 },
-      linBuildsPerDev: { min: 0, max: 20 },
-      avgTimeMac: { min: 1, max: 60 },
-      avgTimeLinux: { min: 1, max: 60 },
+      releasesPerDev: { min: 0, max: 20 },
+      avgTime: { min: 1, max: 60 },
     };
 
     const state = {
       teamSize: 30,
-      concurrencies: 10,
-      macBuildsPerDev: 5,
-      linBuildsPerDev: 5,
-      avgTimeMac: 18,
-      avgTimeLinux: 19,
+      releasesPerDev: 5,
+      avgTime: 18,
       macMachine: "mac_m2",
       altProvider: "github",
     };
+
+    function concurrenciesForTeam(teamSize) {
+      return Math.max(1, Math.ceil(teamSize / CONCURRENCY_TEAM_RATIO));
+    }
 
     function clampField(id, raw) {
       const b = FIELD_BOUNDS[id];
@@ -725,11 +615,7 @@
     function bindNumericPair(id) {
       const slider = document.getElementById(id);
       const num = document.getElementById(id + "-num");
-
-      slider.addEventListener("input", () => {
-        setField(id, slider.value);
-        updateResults();
-      });
+      slider.addEventListener("input", () => { setField(id, slider.value); updateResults(); });
       num.addEventListener("input", () => {
         if (num.value === "" || num.value === "-") return;
         setField(id, num.value);
@@ -760,25 +646,28 @@
 
     function readInputs() {
       state.teamSize = +document.getElementById("teamSize").value;
-      state.concurrencies = +document.getElementById("concurrencies").value;
-      state.macBuildsPerDev = +document.getElementById("macBuildsPerDev").value;
-      state.linBuildsPerDev = +document.getElementById("linBuildsPerDev").value;
-      state.avgTimeMac = +document.getElementById("avgTimeMac").value;
-      state.avgTimeLinux = +document.getElementById("avgTimeLinux").value;
+      state.releasesPerDev = +document.getElementById("releasesPerDev").value;
+      state.avgTime = +document.getElementById("avgTime").value;
       state.macMachine = document.getElementById("macMachine").value;
     }
 
     function derived() {
-      const macBuilds = state.macBuildsPerDev * state.teamSize * WEEKDAYS_PER_MONTH;
-      const linBuilds = state.linBuildsPerDev * state.teamSize * WEEKDAYS_PER_MONTH;
+      const macBuilds = state.releasesPerDev * state.teamSize * WEEKDAYS_PER_MONTH;
+      const linBuilds = state.releasesPerDev * state.teamSize * WEEKDAYS_PER_MONTH;
       const totalBuilds = macBuilds + linBuilds;
-      const macRatio = totalBuilds > 0 ? macBuilds / totalBuilds : 0.5;
-      const totalCIMinutes = Math.round(totalBuilds * (macRatio * state.avgTimeMac + (1 - macRatio) * state.avgTimeLinux));
-      return { macBuilds, linBuilds, totalBuilds, macRatio, totalCIMinutes };
+      const concurrencies = concurrenciesForTeam(state.teamSize);
+      const totalCIMinutes = Math.round(totalBuilds * state.avgTime);
+      return {
+        macBuilds,
+        linBuilds,
+        totalBuilds,
+        concurrencies,
+        totalCIMinutes,
+      };
     }
 
     function calcArgs(builds, d) {
-      return [builds, state.avgTimeMac, state.avgTimeLinux, d.macRatio, state.macMachine, "linux_std", state.teamSize, state.concurrencies];
+      return [builds, state.avgTime, state.macMachine, state.teamSize, d.concurrencies];
     }
 
     function isGithubNa() {
@@ -790,11 +679,16 @@
       if (!el) return;
       if (state.altProvider === "expo") {
         el.innerHTML =
-          "<strong>Expo (EAS):</strong> Production $199/mo + $225 build credit; iOS/Android per-build overage (med/lg); workflow test min @ blended $/min (build time sliders). EAS Update not included.";
+          "<strong>Expo (EAS):</strong> Production $199/mo + $225 build credit; iOS/Android per-build overage (med/lg); workflow test min @ blended $/min. EAS Update not included.";
       } else {
         el.innerHTML =
           "<strong>GitHub Actions:</strong> Team plan ($4/user/mo) + macOS @ $0.102/min (M2); no M4 macOS runner.";
       }
+    }
+
+    function updateSummary(d) {
+      document.getElementById("usage-summary").textContent =
+        `${d.totalBuilds.toLocaleString()} platform builds / month · ~${d.totalCIMinutes.toLocaleString()} CI min · ${d.concurrencies} concurrencies`;
     }
 
     function runProviderCalc(id, builds, d) {
@@ -809,13 +703,10 @@
     function updateResults() {
       readInputs();
       setField("teamSize", state.teamSize);
-      setField("concurrencies", state.concurrencies);
-      setField("macBuildsPerDev", state.macBuildsPerDev);
-      setField("linBuildsPerDev", state.linBuildsPerDev);
-      setField("avgTimeMac", state.avgTimeMac);
-      setField("avgTimeLinux", state.avgTimeLinux);
+      setField("releasesPerDev", state.releasesPerDev);
+      setField("avgTime", state.avgTime);
       const d = derived();
-      updateBuildSummary(d);
+      updateSummary(d);
       const out = renderCards(d);
       renderChart(out);
     }
@@ -838,12 +729,6 @@
       return { points, maxX };
     }
 
-    function xAxisLabelCenterX(maxX, pad, plotW) {
-      const xTicks = 5;
-      const midBuilds = ((maxX / xTicks) * 2 + (maxX / xTicks) * 3) / 2;
-      return pad.l + (midBuilds / maxX) * plotW;
-    }
-
     function chartAxesHtml(W, H, pad, maxY, maxX) {
       const plotW = W - pad.l - pad.r;
       const plotH = H - pad.t - pad.b;
@@ -851,7 +736,8 @@
       const xTitleY = H - 10;
       const yTickX = pad.l - 14;
       const xScale = (b) => pad.l + (b / maxX) * plotW;
-      const xTitleX = xAxisLabelCenterX(maxX, pad, plotW);
+      const xTicks = 5;
+      const xTitleX = pad.l + plotW / 2;
       let html = "";
       const gridY = 5;
       for (let i = 0; i <= gridY; i++) {
@@ -860,12 +746,11 @@
         html += `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="${CHART.grid}" stroke-dasharray="3 3"/>`;
         html += `<text x="${yTickX}" y="${y + 4}" text-anchor="end" font-size="11" fill="${CHART.muted}">${fmt(val)}</text>`;
       }
-      const xTicks = 5;
       for (let i = 0; i <= xTicks; i++) {
         const b = Math.round((maxX / xTicks) * i);
         html += `<text x="${xScale(b)}" y="${xTickY}" text-anchor="middle" font-size="11" fill="${CHART.muted}">${b >= 1000 ? (b / 1000).toFixed(1) + "k" : b}</text>`;
       }
-      html += `<text x="${xTitleX}" y="${xTitleY}" text-anchor="middle" font-size="12" fill="${CHART.axis}">Builds per month</text>`;
+      html += `<text x="${xTitleX}" y="${xTitleY}" text-anchor="middle" font-size="12" fill="${CHART.axis}">Platform builds per month</text>`;
       return html;
     }
 
@@ -977,7 +862,7 @@
           const dist = Math.abs(p.builds - clamped);
           if (dist < best) { best = dist; nearest = p; }
         }
-        let tip = `<strong>${nearest.builds.toLocaleString()} builds / month</strong><br>`;
+        let tip = `<strong>${nearest.builds.toLocaleString()} platform builds / month</strong><br>`;
         for (const id of providerIds()) {
           const prov = getProvider(id);
           if (nearest[id] == null) {
@@ -997,11 +882,8 @@
     }
 
     bindNumericPair("teamSize");
-    bindNumericPair("concurrencies");
-    bindNumericPair("macBuildsPerDev");
-    bindNumericPair("linBuildsPerDev");
-    bindNumericPair("avgTimeMac");
-    bindNumericPair("avgTimeLinux");
+    bindNumericPair("releasesPerDev");
+    bindNumericPair("avgTime");
 
     document.getElementById("macMachine").addEventListener("change", updateResults);
 
