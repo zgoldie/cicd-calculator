@@ -1,22 +1,22 @@
-# CI/CD Calculator
+# Codemagic Experiments
 
-Compare estimated monthly costs for **Codemagic**, **GitHub Actions**, and **Bitrise**.
+Sales and demo tools for mobile CI/CD — pricing calculators, yaml builder, and more.
 
-## For sales
+**Live:** [zgoldie.github.io/codemagic-experiments](https://zgoldie.github.io/codemagic-experiments/)
 
-**Live:** [zgoldie.github.io/cicd-calculator](https://zgoldie.github.io/cicd-calculator/)
+## Tools
 
-**Burstable concurrency (Codemagic only):** [zgoldie.github.io/cicd-calculator/burstable.html](https://zgoldie.github.io/cicd-calculator/burstable.html)
+**CI/CD pricing calculator:** [index.html](https://zgoldie.github.io/codemagic-experiments/) — compare estimated monthly costs for **Codemagic**, **GitHub Actions**, and **Bitrise**.
 
-**OTA updates (Codemagic CodePush vs Expo EAS Update):** [zgoldie.github.io/cicd-calculator/ota.html](https://zgoldie.github.io/cicd-calculator/ota.html)
+**Burstable concurrency (Codemagic only):** [burstable.html](https://zgoldie.github.io/codemagic-experiments/burstable.html)
 
-**codemagic.yaml builder (iOS & Android):** [zgoldie.github.io/cicd-calculator/yaml-builder.html](https://zgoldie.github.io/cicd-calculator/yaml-builder.html)
+**OTA updates (Codemagic CodePush vs Expo EAS Update):** [ota.html](https://zgoldie.github.io/codemagic-experiments/ota.html)
 
-**Simple CI/CD (mobile defaults):** [zgoldie.github.io/cicd-calculator/simple.html](https://zgoldie.github.io/cicd-calculator/simple.html)
+**codemagic.yaml builder (iOS & Android):** [yaml-builder.html](https://zgoldie.github.io/codemagic-experiments/yaml-builder.html)
 
-Or open `index.html` locally in Chrome, Safari, or Edge. Adjust team size, concurrencies, macOS/Linux build volume, and CI times — results update live. Choose **M2** or **M4** for macOS pricing. Use the middle card dropdown to compare **GitHub Actions** or **Expo (EAS)**.
+**Simple CI/CD (mobile defaults):** [simple.html](https://zgoldie.github.io/codemagic-experiments/simple.html)
 
-No install, login, or build step. Works offline locally. Keep `favicon.svg` in the same folder as the HTML.
+Open any `.html` file locally in Chrome, Safari, or Edge. No install, login, or build step. Works offline locally. Keep `favicon.svg` in the same folder as the HTML.
 
 ## Files
 
