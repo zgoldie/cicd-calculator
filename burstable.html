@@ -320,14 +320,14 @@
               type="number"
               class="field-input"
               id="typical-num"
-              min="1"
+              min="10"
               max="100"
               value="10"
               inputmode="numeric"
               aria-label="Typical concurrencies"
             />
           </div>
-          <input type="range" id="typical" min="1" max="100" value="10" aria-labelledby="typical-num" />
+          <input type="range" id="typical" min="10" max="100" value="10" aria-labelledby="typical-num" />
         </div>
 
         <div class="field">
@@ -398,7 +398,7 @@
     const fmtFull = (n) => "$" + Math.round(n).toLocaleString();
 
     const FIELD_BOUNDS = {
-      typical: { min: 1, max: 100 },
+      typical: { min: BURSTABLE_MIN_SUBSCRIBED, max: 100 },
       burst: { min: 0, max: 100 },
     };
 
@@ -493,15 +493,6 @@
 
       setField("typical", state.typical);
       setField("burst", state.burst);
-
-      const warn = document.getElementById("warn");
-      if (r.subscribed < BURSTABLE_MIN_SUBSCRIBED) {
-        warn.textContent =
-          "Burstable billing applies from 10+ subscribed concurrencies. Estimate shown uses the burstable formula for exploration.";
-        warn.classList.add("visible");
-      } else {
-        warn.classList.remove("visible");
-      }
 
       document.getElementById("cost-monthly").textContent = fmtFull(r.burstableMonthly) + "/month";
       document.getElementById("cost-yearly").textContent = fmtFull(r.burstableYearly) + "/year (estimated)";

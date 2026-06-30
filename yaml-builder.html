@@ -853,7 +853,7 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script>
-    const STORAGE_KEY = "yaml-builder-v1";
+    const STORAGE_KEY = "yaml-builder-v2";
 
     // Platform defaults we omit from generated YAML unless the user overrides them:
     // - max_build_duration → 60 minutes
@@ -890,6 +890,7 @@
       keystoreReference: "",
       bundleIdentifier: "",
       appStoreConnectKeyName: "",
+      appStoreAppleId: "",
       credentialsReady: false,
       testType: "",
       testDevice: "",
@@ -1097,11 +1098,60 @@
         "xcodebuild \\",
         `  ${wsFlag} "${xcodeWorkspaceEnvPath()}" \\`,
         '  -scheme "$XCODE_SCHEME" \\',
-        "  -configuration Debug \\",
-        "  -destination 'generic/platform=iOS' \\",
+        "  -sdk iphonesimulator \\",
+        '  -destination "generic/platform=iOS Simulator" \\',
+        "  -derivedDataPath build/ios \\",
         "  CODE_SIGNING_ALLOWED=NO \\",
+        "  CODE_SIGNING_REQUIRED=NO \\",
         "  build",
       ].join("\n");
+    }
+
+    function useProfilesScript() {
+      return {
+        name: "Set up code signing settings on Xcode project",
+        script: "xcode-project use-profiles",
+      };
+    }
+
+    function incrementBuildScript() {
+      const cdLine = (isReactNative() || isFlutter()) ? "cd $CM_BUILD_DIR/ios" : "cd $CM_BUILD_DIR";
+      return {
+        name: "Increment build number",
+        script: [
+          cdLine,
+          'LATEST_BUILD_NUMBER=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APPLE_ID")',
+          "agvtool new-version -all $(($LATEST_BUILD_NUMBER + 1))",
+        ].join("\n"),
+      };
+    }
+
+    function appendIosBuildScripts(scripts, f) {
+      if (f.signed && isFlutter()) {
+        scripts.push(useProfilesScript());
+      }
+
+      getDependencyScripts().forEach((s) => scripts.push(s));
+      getPreBuildTestScripts().forEach((s) => scripts.push(s));
+
+      if (f.tests && state.testType === "maestro") {
+        getMaestroScripts().forEach((s) => scripts.push(s));
+      }
+
+      if (f.signed) {
+        if (!isFlutter()) {
+          scripts.push(useProfilesScript());
+        }
+        if (f.hasApiKey && String(state.appStoreAppleId ?? "").trim()) {
+          scripts.push(incrementBuildScript());
+        }
+        scripts.push({
+          name: isFlutter() ? "Flutter build ipa" : "Build ipa for distribution",
+          script: signedBuildScript(),
+        });
+      } else {
+        scripts.push({ name: "Build iOS simulator app", script: unsignedBuildScript() });
+      }
     }
 
     function signedBuildScript() {
@@ -1274,19 +1324,26 @@
       return String(state.bundleIdentifier ?? "").trim() !== "";
     }
 
+    function hasIosPublishingPrereqs() {
+      return String(state.appStoreConnectKeyName ?? "").trim() !== ""
+        && String(state.appStoreAppleId ?? "").trim() !== "";
+    }
+
     function hasDistributionConfig() {
       if (isAndroidPlatform()) {
         return String(state.playTrack ?? "").trim() !== "";
       }
-      return String(state.betaGroups ?? "").trim() !== "";
+      return String(state.betaGroups ?? "").trim() !== "" && hasIosPublishingPrereqs();
     }
 
     function pipelineFeatures() {
       const hasApiKey = String(state.appStoreConnectKeyName ?? "").trim() !== "";
+      const hasAppleId = String(state.appStoreAppleId ?? "").trim() !== "";
       return {
         unsigned: isSetupValid(),
         signed: (state.step >= 3 || state.maxStep >= 3) && isSigningReady(),
         hasApiKey,
+        hasAppleId,
         tests: (state.step >= 4 || state.maxStep >= 4) && hasConfiguredTests(),
         distribute: (state.step >= 5 || state.maxStep >= 5) && hasDistributionConfig(),
       };
@@ -1401,31 +1458,12 @@
       lines.push("      vars:");
       lines.push(`        XCODE_WORKSPACE: ${yamlQuote(getXcodeConfig().file)}`);
       lines.push(`        XCODE_SCHEME: ${yamlQuote(getXcodeConfig().scheme)}`);
+      if (f.signed && f.hasAppleId) {
+        lines.push(`        APP_STORE_APPLE_ID: ${state.appStoreAppleId.trim()}`);
+      }
 
       const scripts = [];
-
-      if (f.signed) {
-        scripts.push({
-          name: "Set up code signing settings on Xcode project",
-          script: "xcode-project use-profiles",
-        });
-      }
-
-      getDependencyScripts().forEach((s) => scripts.push(s));
-      getPreBuildTestScripts().forEach((s) => scripts.push(s));
-
-      if (f.tests && state.testType === "maestro") {
-        getMaestroScripts().forEach((s) => scripts.push(s));
-      }
-
-      if (f.signed) {
-        scripts.push({
-          name: isFlutter() ? "Flutter build ipa" : "Build ipa for distribution",
-          script: signedBuildScript(),
-        });
-      } else {
-        scripts.push({ name: "Build iOS without code signing", script: unsignedBuildScript() });
-      }
+      appendIosBuildScripts(scripts, f);
 
       lines.push("");
       if (highlightSections.includes("scripts")) lines.push("    # ↳ scripts updated this step");
@@ -1450,11 +1488,11 @@
       } else if (isFlutter()) {
         lines.push("      - build/ios/iphoneos/**/*.app");
       } else {
-        lines.push("      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app");
+        lines.push("      - build/ios/Build/Products/*-iphonesimulator/*.app");
       }
       lines.push("      - /tmp/xcodebuild_logs/*.log");
 
-      if (f.distribute) {
+      if (f.distribute && f.hasApiKey) {
         lines.push("");
         if (highlightSections.includes("publishing")) lines.push("    # ↳ added for TestFlight");
         lines.push("    publishing:");
@@ -1512,6 +1550,9 @@
             return `<span class="hl">${line}</span>`;
           }
           if (decoded.includes("flutter build ipa") && highlightSections.includes("signing_scripts")) {
+            return `<span class="hl">${line}</span>`;
+          }
+          if (decoded.includes("agvtool") && highlightSections.includes("signing_scripts")) {
             return `<span class="hl">${line}</span>`;
           }
           if (decoded.includes("bundleRelease") && highlightSections.includes("signing_scripts")) {
@@ -1633,7 +1674,8 @@
           ];
         }
         return [
-          { type: "text", key: "appStoreConnectKeyName", label: "What is your App Store Connect API key called in Codemagic?", hint: "The reference name from Team settings → Team integrations → Developer Portal." },
+          { type: "text", key: "appStoreConnectKeyName", label: "What is your App Store Connect API key called in Codemagic?", hint: "The reference name from Team settings → Team integrations → Developer Portal. Required for signing integration and TestFlight publishing." },
+          { type: "number", key: "appStoreAppleId", label: "What is your App Store Apple ID?", hint: "Numeric ID from App Store Connect → your app → App Information. Used to auto-increment build numbers before each upload." },
           { type: "info", id: "signed" },
         ];
       }
@@ -1726,13 +1768,7 @@
         unsigned: `
           <div class="info-screen">
             <h2 class="col-heading">Run an unsigned build first</h2>
-            <p class="stage-desc">${isNativeAndroid()
-              ? "Your workflow sets <code>local.properties</code> and runs <code>./gradlew assembleDebug</code> to verify the project compiles."
-              : isFlutter()
-              ? "Your workflow runs <code>flutter build ios --debug --no-codesign</code> to verify the project compiles."
-              : isReactNative()
-                ? "Your workflow installs npm dependencies, runs CocoaPods in <code>ios/</code>, then compiles without code signing."
-                : "Your workflow compiles without code signing."}${isIosPlatform() ? " The scheme is assumed to match the project filename — edit <code>XCODE_SCHEME</code> in the YAML if yours differs." : ""}</p>
+            <p class="stage-desc">Confirm the build runs using this <code>codemagic.yaml</code> first. Once you have a successful build, we’ll move on to adding code signing.</p>
             <div class="action-box">
               <strong>Next steps</strong>
               <ol>
@@ -1757,15 +1793,15 @@ git push</pre>
         androidSigning2: `<div class="info-screen"><p class="question-meta">Signing · 2 of 2</p><h2 class="question-heading">Wire Gradle to Codemagic signing</h2><p class="question-hint">In <code>app/build.gradle</code>, point <code>signingConfigs.release</code> at <code>CM_KEYSTORE_PATH</code>, <code>CM_KEYSTORE_PASSWORD</code>, <code>CM_KEY_ALIAS</code>, and <code>CM_KEY_PASSWORD</code> when <code>CI=true</code>. See the <a href="https://docs.codemagic.io/yaml-quick-start/building-a-native-android-app/" target="_blank" rel="noopener">native Android quickstart</a>.</p></div>`,
         googlePlaySetup: `<div class="info-screen"><h2 class="question-heading">Set up Google Play credentials</h2><p class="question-hint">Create a Google Cloud service account with Play Console access. In Codemagic, add a secret variable <code>GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS</code> in a group named <code>google_play</code> (paste the JSON key contents). Needed for build versioning and publishing.</p></div>`,
         signedAndroid: `<div class="info-screen"><h2 class="col-heading">Run a signed release build</h2><p class="stage-desc">Your YAML now builds a signed <code>.aab</code> with auto-incrementing version codes from Google Play. Commit, push, and start a new build.</p><div class="action-box"><ol><li>Commit the updated <code>codemagic.yaml</code> and push.</li><li>Start a new build with this workflow.</li><li>Confirm a signed <code>.aab</code> appears in artifacts.</li></ol></div></div>`,
-        signed: `<div class="info-screen"><h2 class="col-heading">Run a signed build</h2><p class="stage-desc">Your YAML now includes signing. Commit, push, and start a new build.</p><div class="action-box"><ol><li>Commit the updated <code>codemagic.yaml</code> and push.</li><li>Start a new build with this workflow.</li><li>Confirm a signed <code>.ipa</code> appears in artifacts.</li></ol></div></div>`,
+        signed: `<div class="info-screen"><h2 class="col-heading">Run a signed build</h2><p class="stage-desc">Your YAML now includes signing and auto-incrementing build numbers. Commit, push, and start a new build.</p><div class="action-box"><ol><li>Commit the updated <code>codemagic.yaml</code> and push.</li><li>Start a new build with this workflow.</li><li>Confirm a signed <code>.ipa</code> appears in artifacts.</li></ol></div></div>`,
         testsGradle: `<div class="info-screen"><h2 class="col-heading">Gradle unit tests</h2><p class="stage-desc">Runs <code>./gradlew test</code> before the release build step.</p></div>`,
         testsSkip: `<div class="info-screen"><h2 class="col-heading">Skipping tests</h2><p class="stage-desc">No test scripts added. You can add them later — see <a href="https://docs.codemagic.io/yaml-testing/testing/" target="_blank" rel="noopener">Running tests</a>.</p></div>`,
         testsXctest: `<div class="info-screen"><h2 class="col-heading">XCTest on the simulator</h2><p class="stage-desc">Uses <code>xcode-project run-tests</code> before your build. Results appear in the build overview when JUnit XML is published via <code>test_report</code>.</p></div>`,
-        testsMaestro: `<div class="info-screen"><h2 class="col-heading">Maestro on the build machine</h2><p class="stage-desc">The workflow builds a Simulator <code>.app</code>, boots a simulator, installs the app, and runs <code>maestro test</code>. Adjust <code>APP_PATH</code> in the YAML if your build output path differs.</p></div>`,
+        testsMaestro: `<div class="info-screen"><h2 class="col-heading">Maestro on the build machine</h2><p class="stage-desc">Maestro needs a Simulator <code>.app</code>, not an IPA — so the workflow builds one before the distribution build. That simulator build runs after dependency install and before <code>xcode-project build-ipa</code> (or <code>flutter build ipa</code>). Adjust <code>APP_PATH</code> in the YAML if your output path differs.</p></div>`,
         appium1: `<div class="info-screen"><p class="question-meta">Appium</p><h2 class="question-heading">Appium needs a server and a test runner</h2><p class="question-hint">The YAML installs Appium, starts the server in the background, then runs your test command. Make sure your config points at an iOS simulator. <a href="https://docs.codemagic.io/yaml-testing/testing/" target="_blank" rel="noopener">Testing docs →</a></p></div>`,
         testsAppium: `<div class="info-screen"><h2 class="col-heading">Run Appium tests</h2><p class="stage-desc">Commit, push, and run a build. If Appium fails, check the test command and that your WebdriverIO (or other) config targets iOS.</p></div>`,
         tests: `<div class="info-screen"><h2 class="col-heading">Run your test build</h2><p class="stage-desc">Test scripts are added before the build step. Commit the YAML, push, and confirm the test step passes in the build log.</p></div>`,
-        testflight: `<div class="info-screen"><h2 class="col-heading">Publish to TestFlight</h2><p class="stage-desc">Publishing uploads your IPA after each successful build.</p><div class="action-box"><ol><li>Commit the final <code>codemagic.yaml</code> and push.</li><li>Run the workflow — publishing happens in post-processing.</li><li>Check App Store Connect → TestFlight for the new build.</li></ol></div></div>`,
+        testflight: `<div class="info-screen"><h2 class="col-heading">Publish to TestFlight</h2><p class="stage-desc">Publishing uploads your IPA after each successful build. Build numbers increment automatically using your App Store Apple ID.</p><div class="action-box"><ol><li>Commit the final <code>codemagic.yaml</code> and push.</li><li>Run the workflow — publishing happens in post-processing.</li><li>Check App Store Connect → TestFlight for the new build.</li></ol></div></div>`,
         googlePlay: `<div class="info-screen"><h2 class="col-heading">Publish to Google Play</h2><p class="stage-desc">Publishing uploads your AAB to the selected track after each successful build.</p><div class="action-box"><ol><li>Commit the final <code>codemagic.yaml</code> and push.</li><li>Run the workflow — publishing happens in post-processing.</li><li>Check Google Play Console for the new release.</li></ol></div></div>`,
       };
       return infos[id] || "";
@@ -1785,7 +1821,7 @@ git push</pre>
           <h2 class="question-heading">${screen.label}</h2>
           ${screen.hint ? `<p class="question-hint">${screen.hint}</p>` : ""}
           <div class="question-field">
-            <input class="text-input" id="q-input" type="${inputType}" ${extra} placeholder="${screen.key === "xcodeWorkspace" ? getLikelyXcodeWorkspace() : screen.key === "playTrack" ? "internal" : screen.key === "keystoreReference" ? "keystore_reference" : placeholder}" value="${escapeAttr(val)}" autocomplete="off" />
+            <input class="text-input" id="q-input" type="${inputType}" ${extra} placeholder="${screen.key === "xcodeWorkspace" ? getLikelyXcodeWorkspace() : screen.key === "playTrack" ? "internal" : screen.key === "keystoreReference" ? "keystore_reference" : screen.key === "appStoreAppleId" ? "1234567890" : placeholder}" value="${escapeAttr(val)}" autocomplete="off" />
           </div>`;
       }
 
@@ -1911,6 +1947,14 @@ git push</pre>
 
       if (screen.key === "xcodeWorkspace" && !isValidXcodeFile(val)) {
         return "Enter a filename ending in .xcworkspace or .xcodeproj.";
+      }
+
+      if (screen.key === "appStoreAppleId" && !/^\d+$/.test(String(val ?? "").trim())) {
+        return "Enter the numeric App Store Apple ID from App Store Connect.";
+      }
+
+      if (screen.key === "betaGroups" && isIosPlatform() && !hasIosPublishingPrereqs()) {
+        return "Complete the Signed step first — add your App Store Connect API key name and App Store Apple ID.";
       }
 
       if (screen.key === "appiumTestCommand" && state.testType === "appium" && !String(val ?? "").trim()) {
