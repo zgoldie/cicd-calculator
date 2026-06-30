@@ -1,0 +1,2176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>codemagic.yaml · Codemagic</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", monospace;
+      --cm-blue: #0052ff;
+      --cm-blue-hover: #0046db;
+      --cm-blue-muted: rgba(0, 82, 255, 0.08);
+      --cm-bg: #ffffff;
+      --cm-page: #f7f8fa;
+      --cm-sidebar: #ffffff;
+      --cm-border: #e4e8ee;
+      --cm-border-strong: #d8dde6;
+      --cm-text: #1f2937;
+      --cm-text-secondary: #4b5563;
+      --cm-text-muted: #6b7280;
+      --cm-text-light: #9ca3af;
+      --cm-code-bg: #f3f4f6;
+      --cm-radius: 8px;
+      --cm-radius-lg: 12px;
+      --sidebar-w: 220px;
+      --accent: var(--cm-blue);
+      --success: #059669;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background: var(--cm-page);
+      color: var(--cm-text);
+      -webkit-font-smoothing: antialiased;
+    }
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* —— Sidebar —— */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--cm-sidebar);
+      border-right: 1px solid var(--cm-border);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0 16px;
+    }
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px 24px;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--cm-text);
+      letter-spacing: -0.02em;
+    }
+    .sidebar-logo svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--cm-text-secondary);
+      text-decoration: none;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      cursor: default;
+    }
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.75;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .nav-item.active {
+      color: var(--cm-text);
+      background: var(--cm-blue-muted);
+    }
+    .nav-item .badge {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff;
+      background: linear-gradient(135deg, #ec0c43, #ff9100);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .sidebar-foot {
+      margin-top: auto;
+      padding: 16px 20px 0;
+      border-top: 1px solid var(--cm-border);
+      font-size: 12px;
+      color: var(--cm-text-muted);
+      line-height: 1.5;
+    }
+    .sidebar-foot .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      font-weight: 500;
+      color: var(--cm-text-secondary);
+    }
+    .sidebar-foot .status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    .sidebar-foot a {
+      color: var(--cm-text-muted);
+      text-decoration: none;
+    }
+
+    /* —— Main —— */
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 28px 32px 40px;
+    }
+    .project-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .project-title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .project-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--cm-blue-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .project-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--cm-blue);
+      fill: none;
+      stroke-width: 1.75;
+    }
+    .project-name {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .project-repo {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--cm-text-muted);
+    }
+    .project-repo a {
+      color: var(--cm-blue);
+      text-decoration: none;
+    }
+    .project-repo a:hover { text-decoration: underline; }
+    .btn-header {
+      height: 40px;
+      padding: 0 18px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #fff;
+      background: var(--cm-blue);
+      border: none;
+      border-radius: 20px;
+      cursor: default;
+      white-space: nowrap;
+    }
+
+    /* —— Tabs —— */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--cm-border);
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--cm-text-muted);
+      border: none;
+      background: none;
+      cursor: default;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      white-space: nowrap;
+    }
+    .tab.active {
+      color: var(--cm-text);
+      border-bottom-color: var(--cm-text);
+      font-weight: 600;
+    }
+
+    /* —— Branch row —— */
+    .branch-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .branch-label { color: var(--cm-text-secondary); font-weight: 500; }
+    .branch-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 12px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--cm-text);
+      background: var(--cm-bg);
+      border: 1px solid var(--cm-border-strong);
+      border-radius: var(--cm-radius);
+      cursor: default;
+    }
+    .branch-select svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--cm-text-muted);
+      fill: none;
+      stroke-width: 2;
+    }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--cm-border-strong);
+      border-radius: 50%;
+      background: var(--cm-bg);
+      cursor: default;
+    }
+    .icon-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--cm-text-muted);
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* —— Config card (replaces empty state) —— */
+    .config-card {
+      background: var(--cm-bg);
+      border: 1px solid var(--cm-border);
+      border-radius: var(--cm-radius-lg);
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+    .config-card-bar {
+      padding: 12px 20px;
+      font-size: 13px;
+      color: var(--cm-text-light);
+      border-bottom: 1px solid var(--cm-border);
+      background: #fafbfc;
+    }
+    .config-card-body { padding: 24px 24px 28px; }
+
+    .wizard-intro {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--cm-text);
+      margin: 0 0 4px;
+      text-align: center;
+    }
+    .wizard-sub {
+      font-size: 14px;
+      color: var(--cm-text-muted);
+      text-align: center;
+      margin: 0 0 20px;
+      line-height: 1.5;
+    }
+    .question-meta {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--cm-text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+    .question-heading {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--cm-text);
+      margin: 0 0 8px;
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+    }
+    .question-hint {
+      font-size: 14px;
+      color: var(--cm-text-muted);
+      line-height: 1.5;
+      margin: 0 0 20px;
+    }
+    .question-hint code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--cm-code-bg);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    .question-hint a {
+      color: var(--cm-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .question-hint a:hover { text-decoration: underline; }
+    .question-field { margin-bottom: 4px; }
+    .text-input.textarea {
+      height: auto;
+      min-height: 100px;
+      padding: 10px 12px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .choice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .choice-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 500;
+      color: var(--cm-text-secondary);
+      background: var(--cm-bg);
+      border: 1px solid var(--cm-border-strong);
+      border-radius: var(--cm-radius);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .choice-btn:hover {
+      border-color: var(--cm-blue);
+      color: var(--cm-text);
+    }
+    .choice-btn.selected {
+      border-color: var(--cm-blue);
+      background: var(--cm-blue-muted);
+      color: var(--cm-blue);
+    }
+    .info-screen .col-heading {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .stepper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .step-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--cm-text-muted);
+      border: 1px solid var(--cm-border);
+      border-radius: 100px;
+      background: var(--cm-bg);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      font-family: inherit;
+    }
+    .step-pill:hover:not(:disabled) {
+      border-color: var(--cm-border-strong);
+      color: var(--cm-text-secondary);
+    }
+    .step-pill:disabled { cursor: default; opacity: 0.5; }
+    .step-pill .num {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--cm-code-bg);
+      color: var(--cm-text-muted);
+      flex-shrink: 0;
+    }
+    .step-pill.active {
+      color: var(--cm-blue);
+      border-color: var(--cm-blue);
+      background: var(--cm-blue-muted);
+    }
+    .step-pill.active .num {
+      background: var(--cm-blue);
+      color: #fff;
+    }
+    .step-pill.done {
+      color: var(--cm-text-secondary);
+      border-color: #bbf7d0;
+    }
+    .step-pill.done .num {
+      background: #dcfce7;
+      color: var(--success);
+    }
+
+    .wizard-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    #stage-panel { min-width: 0; }
+    .col-heading {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 8px;
+      color: var(--cm-text);
+    }
+    .stage-desc {
+      font-size: 14px;
+      color: var(--cm-text-muted);
+      line-height: 1.55;
+      margin: 0 0 18px;
+    }
+    .stage-desc code,
+    .checkbox-row code,
+    .checklist code,
+    .action-box code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--cm-code-bg);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--cm-text-secondary);
+    }
+    .field { margin-bottom: 14px; }
+    .field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cm-text);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .field-hint {
+      display: block;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--cm-text-light);
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+    .text-input,
+    .select-input {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--cm-text);
+      background: var(--cm-bg);
+      border: 1px solid var(--cm-border-strong);
+      border-radius: var(--cm-radius);
+    }
+    .text-input:focus,
+    .select-input:focus {
+      outline: none;
+      border-color: var(--cm-blue);
+      box-shadow: 0 0 0 3px var(--cm-blue-muted);
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--cm-text-secondary);
+      cursor: pointer;
+    }
+    .checkbox-row input {
+      margin-top: 3px;
+      accent-color: var(--cm-blue);
+      flex-shrink: 0;
+    }
+    .checklist {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      counter-reset: step;
+    }
+    .checklist li {
+      counter-increment: step;
+      margin-bottom: 16px;
+      padding-left: 28px;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--cm-text-secondary);
+    }
+    .checklist li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--cm-code-bg);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--cm-text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .checklist li strong {
+      display: block;
+      font-weight: 600;
+      color: var(--cm-text);
+      margin-bottom: 2px;
+    }
+    .checklist a {
+      color: var(--cm-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .checklist a:hover { text-decoration: underline; }
+    .action-box {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: var(--cm-radius);
+      background: var(--cm-code-bg);
+      border: 1px solid var(--cm-border);
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--cm-text-secondary);
+    }
+    .action-box strong {
+      display: block;
+      color: var(--cm-text);
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .action-box ol {
+      margin: 8px 0 0;
+      padding-left: 1.2em;
+    }
+    .action-box li + li { margin-top: 6px; }
+    .git-snippet {
+      margin: 10px 0 12px;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--cm-text-secondary);
+      background: var(--cm-bg);
+      border: 1px solid var(--cm-border);
+      border-radius: var(--cm-radius);
+      white-space: pre;
+    }
+    .nav-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--cm-border);
+    }
+    .btn {
+      height: 38px;
+      padding: 0 18px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      border-radius: var(--cm-radius);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-primary {
+      background: var(--cm-blue);
+      color: #fff;
+      border-color: var(--cm-blue);
+    }
+    .btn-primary:hover { background: var(--cm-blue-hover); }
+    .btn-primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: var(--cm-bg);
+      color: var(--cm-text-secondary);
+      border-color: var(--cm-border-strong);
+    }
+    .btn-secondary:hover {
+      border-color: var(--cm-text-light);
+      color: var(--cm-text);
+    }
+    .btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .yaml-panel {
+      min-width: 0;
+      background: #fafbfc;
+      border: 1px solid var(--cm-border);
+      border-radius: var(--cm-radius);
+      padding: 16px;
+    }
+    .yaml-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .yaml-header h2 {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 0;
+      color: var(--cm-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .yaml-actions { display: flex; gap: 8px; }
+    .yaml-actions .btn {
+      height: 32px;
+      font-size: 13px;
+      padding: 0 12px;
+      font-weight: 500;
+    }
+    .yaml-stage-note {
+      font-size: 12px;
+      color: var(--cm-text-light);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .yaml-pre {
+      margin: 0;
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.6;
+      overflow-x: auto;
+      background: var(--cm-code-bg);
+      border: 1px solid var(--cm-border);
+      border-radius: var(--cm-radius);
+      white-space: pre;
+      color: #374151;
+      max-height: min(52vh, 520px);
+      overflow-y: auto;
+    }
+    .yaml-pre .hl {
+      background: rgba(0, 82, 255, 0.1);
+      display: inline;
+      box-shadow: inset 0 0 0 1px rgba(0, 82, 255, 0.2);
+    }
+
+    .yaml-pre.is-empty {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--cm-text-muted);
+      white-space: normal;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--cm-bg);
+      border: 1px solid #a7f3d0;
+      color: var(--success);
+      border-radius: var(--cm-radius);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .toast.visible { opacity: 1; transform: translateY(0); }
+    .field-error {
+      font-size: 13px;
+      color: #dc2626;
+      margin-top: 8px;
+    }
+    .radio-group { display: flex; flex-direction: column; gap: 8px; }
+    .radio-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--cm-text-secondary);
+      cursor: pointer;
+    }
+    .radio-row input { accent-color: var(--cm-blue); }
+
+    @media (max-width: 1024px) {
+      .sidebar { display: none; }
+      .wizard-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .main { padding: 16px; }
+      .config-card-body { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Codemagic navigation">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 91 90" aria-hidden="true"><path d="M85.9 37.9L63.8 27.1c-.3-.1-.5-.3-.6-.6L52.4 4.4C51 1.5 48.1 0 45.3 0S39.7 1.5 38.3 4.4L27.4 26.5c-.1.3-.3.5-.6.6L4.7 38C-1.1 40.9-1.1 49.2 4.7 52.1l22.1 10.8c.3.1.5.3.6.6l10.9 22.1c1.4 2.9 4.3 4.4 7.1 4.4s5.6-1.5 7-4.4l10.9-22.1c.1-.3.3-.5.6-.6l22.1-10.9c5.8-2.9 5.8-11.2 0-14.1zm-16.5 1.6-10.2 8.9c-2 1.8-3.5 4.2-4 6.9l-2.6 13.3c-.2.8-1.2 1.1-1.8.5l-9-10.2c-1.8-2-4.3-3.4-7-4l-13.3-2.6c-.8-.2-1.1-1.2-.5-1.8l10.2-9c2-1.8 3.4-4.2 4-6.9l2.6-13.3c.2-.8 1.2-1.1 1.8-.5l9 10.2c1.8 2 4.3 3.4 7 4l13.3 2.6c.8.2 1.1 1.2.5 1.8z" fill="url(#lg)"/><defs><linearGradient id="lg" x1="0" y1="45" x2="90" y2="45"><stop stop-color="#EC0C43"/><stop offset="1" stop-color="#FF9100"/></linearGradient></defs></svg>
+        Codemagic
+      </div>
+      <button type="button" class="nav-item active" aria-current="page">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Applications
+      </button>
+      <button type="button" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        Builds
+      </button>
+      <button type="button" class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+        OTA Updates
+        <span class="badge">New</span>
+      </button>
+      <button type="button" class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 18h6"/></svg>
+        App Preview
+      </button>
+      <button type="button" class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+        Settings
+      </button>
+      <button type="button" class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        Billing
+      </button>
+      <div class="sidebar-foot">
+        <div class="status">All systems operational</div>
+        <div>zach@codemagic.io</div>
+        <a href="#">Log out</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="project-header">
+        <div class="project-title-row">
+          <div class="project-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div>
+            <h1 class="project-name" data-repo-slug="my-ios-app">my-ios-app</h1>
+            <p class="project-repo"><a href="#" data-repo-url="github.com/zgoldie/my-ios-app">github.com/zgoldie/my-ios-app</a></p>
+          </div>
+        </div>
+        <button type="button" class="btn-header">Check for configuration files</button>
+      </header>
+
+      <nav class="tabs" aria-label="Project settings">
+        <button type="button" class="tab active">codemagic.yaml</button>
+        <button type="button" class="tab">Environment variables</button>
+        <button type="button" class="tab">Caching</button>
+        <button type="button" class="tab">Webhooks</button>
+        <button type="button" class="tab">Scheduled builds</button>
+      </nav>
+
+      <div class="branch-row">
+        <span class="branch-label">Branch</span>
+        <div class="branch-select">
+          master
+          <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <button type="button" class="icon-btn" aria-label="Refresh branch">
+          <svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0114.65-3.36L23 10M1 14l4.85 4.36A9 9 0 0020.5 15"/></svg>
+        </button>
+      </div>
+
+      <div class="config-card">
+        <div class="config-card-bar">No configuration file found</div>
+          <div class="config-card-body">
+            <nav class="stepper" id="stepper" aria-label="Pipeline steps"></nav>
+
+            <div class="wizard-layout">
+            <section id="stage-panel" aria-live="polite"></section>
+
+            <section class="yaml-panel">
+              <div class="yaml-header">
+                <h2>codemagic.yaml</h2>
+                <div class="yaml-actions">
+                  <button type="button" class="btn btn-secondary" id="copy-btn">Copy</button>
+                  <button type="button" class="btn btn-secondary" id="download-btn">Download</button>
+                </div>
+              </div>
+              <p class="yaml-stage-note" id="yaml-note"></p>
+              <pre class="yaml-pre" id="yaml-output" aria-label="Generated codemagic.yaml"></pre>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const STORAGE_KEY = "yaml-builder-v1";
+
+    // Platform defaults we omit from generated YAML unless the user overrides them:
+    // - max_build_duration → 60 minutes
+    // - instance_type → mac_mini_m2 for macOS/iOS
+    // - environment.xcode → latest
+    // - environment.cocoapods → default
+
+    const STEPS = [
+      { id: "setup", label: "Setup" },
+      { id: "unsigned", label: "Unsigned" },
+      { id: "signing", label: "Signing" },
+      { id: "signed", label: "Signed" },
+      { id: "tests", label: "Tests" },
+      { id: "distribute", label: "Distribute" },
+    ];
+
+    function getStepLabel(step) {
+      if (step.id === "distribute") {
+        return isAndroidPlatform() ? "Google Play" : "TestFlight";
+      }
+      return step.label;
+    }
+
+    const FLUTTER_WORKSPACE = "Runner.xcworkspace";
+    const FLUTTER_SCHEME = "Runner";
+
+    const DEFAULT_STATE = {
+      step: 0,
+      subStep: 0,
+      maxStep: 0,
+      framework: "",
+      xcodeWorkspace: "",
+      packageName: "",
+      keystoreReference: "",
+      bundleIdentifier: "",
+      appStoreConnectKeyName: "",
+      credentialsReady: false,
+      testType: "",
+      testDevice: "",
+      appiumInstallCmd: "",
+      appiumTestCommand: "",
+      customTestScript: "",
+      betaGroups: "",
+      playTrack: "",
+    };
+
+    let state = { ...DEFAULT_STATE };
+    let highlightSections = [];
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        state = { ...DEFAULT_STATE, ...saved };
+        state.step = Math.min(Math.max(0, state.step), STEPS.length - 1);
+        state.subStep = Math.max(0, state.subStep || 0);
+        state.maxStep = Math.min(Math.max(0, state.maxStep || 0), STEPS.length - 1);
+        ensureLikelyXcodeWorkspace();
+      } catch (_) { /* ignore */ }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (_) { /* ignore */ }
+    }
+
+    function slugify(str) {
+      return String(str)
+        .trim()
+        .toLowerCase()
+        .replace(/\.git$/i, "")
+        .replace(/[^a-z0-9-_]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .replace(/-+/g, "-");
+    }
+
+    function toDisplayName(slug) {
+      return slug
+        .split(/[-_]/)
+        .filter(Boolean)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+    }
+
+    function toProjectName(slug) {
+      return slug
+        .split(/[-_]/)
+        .filter(Boolean)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join("");
+    }
+
+    function getLikelyXcodeWorkspace() {
+      return `${toProjectName(getRepoContext().slug)}.xcworkspace`;
+    }
+
+    function ensureLikelyXcodeWorkspace() {
+      if (!isIosPlatform() || isFlutter()) return;
+      if (!String(state.xcodeWorkspace ?? "").trim()) {
+        state.xcodeWorkspace = getLikelyXcodeWorkspace();
+      }
+    }
+
+    function getRepoContext() {
+      const nameEl = document.querySelector(".project-name");
+      const linkEl = document.querySelector(".project-repo a");
+      const url = linkEl?.dataset.repoUrl || linkEl?.textContent || "";
+      const urlMatch = url.match(/github\.com\/([^/]+)\/([^/\s]+)/i);
+      const org = urlMatch ? urlMatch[1] : null;
+      const repoFromUrl = urlMatch ? slugify(urlMatch[2]) : "";
+      const slug = slugify(nameEl?.dataset.repoSlug || repoFromUrl || nameEl?.textContent || "my-app");
+      const bundleSuffix = slug.replace(/-/g, "");
+      return {
+        slug,
+        displayName: toDisplayName(slug),
+        bundleHint: org ? `com.${org}.${bundleSuffix}` : null,
+      };
+    }
+
+    function getWorkflowMeta() {
+      const repo = getRepoContext();
+      return { id: repo.slug, name: repo.displayName };
+    }
+
+    function getFramework() {
+      return state.framework || "";
+    }
+
+    function isNativeIos() {
+      return state.framework === "native";
+    }
+
+    function isNativeAndroid() {
+      return state.framework === "native-android";
+    }
+
+    function isReactNative() {
+      return state.framework === "react-native";
+    }
+
+    function isFlutter() {
+      return state.framework === "flutter";
+    }
+
+    function isIosPlatform() {
+      return isNativeIos() || isReactNative() || isFlutter();
+    }
+
+    function isAndroidPlatform() {
+      return isNativeAndroid();
+    }
+
+    function isNative() {
+      return isNativeIos();
+    }
+
+    function iosDirPrefix() {
+      return isNativeIos() ? "" : "ios/";
+    }
+
+    function getXcodeConfig() {
+      if (isFlutter()) {
+        return { file: FLUTTER_WORKSPACE, usesXcodeproj: false, scheme: FLUTTER_SCHEME };
+      }
+      const file = state.xcodeWorkspace.trim();
+      const usesXcodeproj = /\.xcodeproj$/i.test(file);
+      const scheme = file.replace(/\.(xcworkspace|xcodeproj)$/i, "");
+      return { file, usesXcodeproj, scheme };
+    }
+
+    function xcodeWorkspaceEnvPath() {
+      return `$CM_BUILD_DIR/${iosDirPrefix()}$XCODE_WORKSPACE`;
+    }
+
+    function isValidXcodeFile(name) {
+      return /\.(xcworkspace|xcodeproj)$/i.test(name.trim());
+    }
+
+    function getDependencyScripts() {
+      const scripts = [];
+      const { usesXcodeproj } = getXcodeConfig();
+
+      if (isNativeAndroid()) {
+        return scripts;
+      }
+
+      if (isFlutter()) {
+        scripts.push({ name: "Get Flutter packages", script: "flutter pub get" });
+        scripts.push({
+          name: "Install CocoaPods dependencies",
+          script: 'find . -name "Podfile" -execdir pod install \\;',
+        });
+        return scripts;
+      }
+
+      if (isReactNative()) {
+        scripts.push({ name: "Install npm dependencies", script: "npm ci" });
+      }
+
+      if (!usesXcodeproj) {
+        scripts.push({
+          name: "Install CocoaPods dependencies",
+          script: isReactNative() ? "cd ios && pod install" : "pod install",
+        });
+      }
+
+      return scripts;
+    }
+
+    function androidSdkScript() {
+      return 'echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/local.properties"';
+    }
+
+    function unsignedAndroidBuildScript() {
+      return "./gradlew assembleDebug";
+    }
+
+    function signedAndroidBuildScript() {
+      return [
+        'LATEST_GOOGLE_PLAY_BUILD_NUMBER=$(google-play get-latest-build-number --package-name "$PACKAGE_NAME")',
+        "if [ -z $LATEST_GOOGLE_PLAY_BUILD_NUMBER ]; then",
+        "    UPDATED_BUILD_NUMBER=$BUILD_NUMBER",
+        "else",
+        "    UPDATED_BUILD_NUMBER=$(($LATEST_GOOGLE_PLAY_BUILD_NUMBER + 1))",
+        "fi",
+        "./gradlew bundleRelease \\",
+        "    -PversionCode=$UPDATED_BUILD_NUMBER \\",
+        "    -PversionName=1.0.$UPDATED_BUILD_NUMBER",
+      ].join("\n");
+    }
+
+    function unsignedBuildScript() {
+      if (isFlutter()) {
+        return "flutter build ios --debug --no-codesign";
+      }
+      const { usesXcodeproj } = getXcodeConfig();
+      const wsFlag = usesXcodeproj ? "-project" : "-workspace";
+      return [
+        "xcodebuild \\",
+        `  ${wsFlag} "${xcodeWorkspaceEnvPath()}" \\`,
+        '  -scheme "$XCODE_SCHEME" \\',
+        "  -configuration Debug \\",
+        "  -destination 'generic/platform=iOS' \\",
+        "  CODE_SIGNING_ALLOWED=NO \\",
+        "  build",
+      ].join("\n");
+    }
+
+    function signedBuildScript() {
+      if (isFlutter()) {
+        return [
+          "flutter build ipa --release \\",
+          "  --export-options-plist=/Users/builder/export_options.plist",
+        ].join("\n");
+      }
+      const { usesXcodeproj } = getXcodeConfig();
+      const wsFlag = usesXcodeproj ? "--project" : "--workspace";
+      return [
+        "xcode-project build-ipa \\",
+        `  ${wsFlag} "${xcodeWorkspaceEnvPath()}" \\`,
+        '  --scheme "$XCODE_SCHEME"',
+      ].join("\n");
+    }
+
+    function hasConfiguredTests() {
+      const t = state.testType;
+      if (!t || t === "no") return false;
+      if (t === "gradle") return isAndroidPlatform();
+      if (t === "xctest") return isIosPlatform();
+      if (t === "maestro") return isIosPlatform();
+      if (t === "appium") return String(state.appiumTestCommand ?? "").trim() !== "";
+      if (t === "custom") return String(state.customTestScript ?? "").trim() !== "";
+      return false;
+    }
+
+    function getAndroidTestScripts() {
+      const t = state.testType;
+      if (!hasConfiguredTests() || !isAndroidPlatform()) return [];
+
+      const scripts = [];
+      if (t === "gradle") {
+        scripts.push({ name: "Run unit tests", script: "./gradlew test" });
+      }
+      if (t === "appium") {
+        const install = String(state.appiumInstallCmd ?? "").trim() || "npm ci";
+        const testCmd = String(state.appiumTestCommand ?? "").trim();
+        scripts.push({ name: "Install test dependencies", script: install });
+        scripts.push({
+          name: "Run Appium tests",
+          script: [
+            "npm install -g appium",
+            "appium &",
+            "sleep 5",
+            testCmd,
+          ].join("\n"),
+        });
+      }
+      if (t === "custom") {
+        scripts.push({
+          name: "Run tests",
+          script: String(state.customTestScript ?? "").trim(),
+        });
+      }
+      return scripts;
+    }
+
+    function getPreBuildTestScripts() {
+      if (isAndroidPlatform()) return [];
+      const t = state.testType;
+      if (!hasConfiguredTests()) return [];
+
+      const wsPath = xcodeWorkspaceEnvPath();
+      const wsFlag = getXcodeConfig().usesXcodeproj ? "--project" : "--workspace";
+      const device = String(state.testDevice ?? "").trim() || "iPhone 16";
+      const scripts = [];
+
+      if (t === "xctest") {
+        scripts.push({
+          name: "Run XCTest",
+          script: [
+            "xcode-project run-tests \\",
+            `  ${wsFlag} "${wsPath}" \\`,
+            '  --scheme "$XCODE_SCHEME" \\',
+            `  --device "${device}"`,
+          ].join("\n"),
+          test_report: "build/ios/test/*.xml",
+        });
+      }
+
+      if (t === "appium") {
+        const install = String(state.appiumInstallCmd ?? "").trim() || "npm ci";
+        const testCmd = String(state.appiumTestCommand ?? "").trim();
+        scripts.push({ name: "Install test dependencies", script: install });
+        scripts.push({
+          name: "Run Appium tests",
+          script: [
+            "npm install -g appium",
+            "appium &",
+            "sleep 5",
+            testCmd,
+          ].join("\n"),
+        });
+      }
+
+      if (t === "custom") {
+        scripts.push({
+          name: "Run tests",
+          script: String(state.customTestScript ?? "").trim(),
+        });
+      }
+
+      return scripts;
+    }
+
+    function getMaestroScripts() {
+      const xcodebuildFlag = getXcodeConfig().usesXcodeproj ? "-project" : "-workspace";
+      return [
+        {
+          name: "Build iOS Simulator app",
+          script: [
+            "xcodebuild \\",
+            `  ${xcodebuildFlag} "${xcodeWorkspaceEnvPath()}" \\`,
+            '  -scheme "$XCODE_SCHEME" \\',
+            "  -configuration Release \\",
+            "  -sdk iphonesimulator \\",
+            "  -derivedDataPath build/ios",
+          ].join("\n"),
+        },
+        {
+          name: "Install Maestro CLI",
+          script: [
+            'curl -Ls "https://get.maestro.mobile.dev" | bash',
+            'export PATH="$PATH:$HOME/.maestro/bin"',
+            "maestro --version",
+          ].join("\n"),
+        },
+        {
+          name: "Run Maestro tests",
+          script: [
+            'export PATH="$PATH:$HOME/.maestro/bin"',
+            'APP_PATH=$(ls -d build/ios/Build/Products/*-iphonesimulator/*.app 2>/dev/null | head -n 1)',
+            "xcrun simctl shutdown all 2>/dev/null || true",
+            "IOS_RUNTIME=$(xcrun simctl list runtimes available | grep -E '^iOS [0-9]' | tail -n 1 | sed -E 's/.* - (com.apple.CoreSimulator.SimRuntime.[^[:space:]]+)$/\\1/')",
+            'SIM_UDID=$(xcrun simctl create "maestro-ci-$RANDOM" com.apple.CoreSimulator.SimDeviceType.iPhone-16 "$IOS_RUNTIME")',
+            'xcrun simctl boot "$SIM_UDID"',
+            'xcrun simctl bootstatus "$SIM_UDID" -b',
+            'xcrun simctl install "$SIM_UDID" "$APP_PATH"',
+            'maestro test --device "$SIM_UDID" .maestro/',
+          ].join("\n"),
+        },
+      ];
+    }
+
+    function isSetupValid() {
+      if (!getFramework()) return false;
+      if (isFlutter() || isNativeAndroid()) return true;
+      return isValidXcodeFile(state.xcodeWorkspace);
+    }
+
+    function isYamlReady() {
+      return state.step > 0 && isSetupValid();
+    }
+
+    function yamlPlaceholderMessage() {
+      if (state.step > 0 && !isSetupValid()) {
+        return "Finish setup on the left — your workflow needs a few more answers before it can run.";
+      }
+      return "Complete setup to preview a runnable workflow.";
+    }
+
+    function isSigningReady() {
+      if (isNativeAndroid()) {
+        return String(state.packageName ?? "").trim() !== ""
+          && String(state.keystoreReference ?? "").trim() !== "";
+      }
+      return String(state.bundleIdentifier ?? "").trim() !== "";
+    }
+
+    function hasDistributionConfig() {
+      if (isAndroidPlatform()) {
+        return String(state.playTrack ?? "").trim() !== "";
+      }
+      return String(state.betaGroups ?? "").trim() !== "";
+    }
+
+    function pipelineFeatures() {
+      const hasApiKey = String(state.appStoreConnectKeyName ?? "").trim() !== "";
+      return {
+        unsigned: isSetupValid(),
+        signed: (state.step >= 3 || state.maxStep >= 3) && isSigningReady(),
+        hasApiKey,
+        tests: (state.step >= 4 || state.maxStep >= 4) && hasConfiguredTests(),
+        distribute: (state.step >= 5 || state.maxStep >= 5) && hasDistributionConfig(),
+      };
+    }
+
+    function indentBlock(text, spaces) {
+      const pad = " ".repeat(spaces);
+      return text.split("\n").map((line) => (line ? pad + line : line)).join("\n");
+    }
+
+    function yamlQuote(str) {
+      return `"${String(str).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+    }
+
+    function buildAndroidYaml(f) {
+      const lines = [];
+      const { id: wfId, name: wfName } = getWorkflowMeta();
+
+      lines.push("workflows:");
+      lines.push(`  ${wfId}:`);
+      lines.push(`    name: ${yamlQuote(wfName)}`);
+      lines.push("");
+      lines.push("    environment:");
+      if (f.signed) {
+        if (highlightSections.includes("android_signing")) lines.push("      # ↳ added for signing");
+        lines.push("      android_signing:");
+        lines.push(`        - ${state.keystoreReference.trim()}`);
+        lines.push("      groups:");
+        lines.push("        - google_play");
+      }
+      const pkg = state.packageName.trim();
+      if (pkg) {
+        lines.push("      vars:");
+        lines.push(`        PACKAGE_NAME: ${yamlQuote(pkg)}`);
+      }
+
+      const scripts = [{ name: "Set Android SDK location", script: androidSdkScript() }];
+      getAndroidTestScripts().forEach((s) => scripts.push(s));
+
+      if (f.signed) {
+        scripts.push({ name: "Build Android release", script: signedAndroidBuildScript() });
+      } else {
+        scripts.push({ name: "Build Android debug", script: unsignedAndroidBuildScript() });
+      }
+
+      lines.push("");
+      if (highlightSections.includes("scripts")) lines.push("    # ↳ scripts updated this step");
+      lines.push("    scripts:");
+      scripts.forEach((s) => {
+        lines.push(`      - name: ${s.name}`);
+        if (s.script.includes("\n")) {
+          lines.push("        script: |");
+          lines.push(indentBlock(s.script, 10));
+        } else {
+          lines.push(`        script: ${s.script}`);
+        }
+        if (s.test_report) {
+          lines.push(`        test_report: ${s.test_report}`);
+        }
+      });
+
+      lines.push("");
+      lines.push("    artifacts:");
+      if (f.signed) {
+        lines.push("      - app/build/outputs/**/*.aab");
+      } else {
+        lines.push("      - app/build/outputs/**/*.apk");
+      }
+
+      if (f.distribute) {
+        lines.push("");
+        if (highlightSections.includes("publishing")) lines.push("    # ↳ added for Google Play");
+        lines.push("    publishing:");
+        lines.push("      google_play:");
+        lines.push("        credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS");
+        lines.push(`        track: ${state.playTrack.trim()}`);
+        lines.push("        submit_as_draft: true");
+      }
+
+      return lines.join("\n");
+    }
+
+    function buildIosYaml(f) {
+      const lines = [];
+      const { id: wfId, name: wfName } = getWorkflowMeta();
+
+      lines.push("workflows:");
+      lines.push(`  ${wfId}:`);
+      lines.push(`    name: ${yamlQuote(wfName)}`);
+
+      if ((f.signed || f.distribute) && f.hasApiKey) {
+        lines.push("");
+        if (highlightSections.includes("integrations")) lines.push("    # ↳ added for signing");
+        lines.push("    integrations:");
+        lines.push(`      app_store_connect: ${state.appStoreConnectKeyName.trim()}`);
+      }
+
+      lines.push("");
+      lines.push("    environment:");
+      if (f.signed) {
+        if (highlightSections.includes("ios_signing")) lines.push("      # ↳ added for signing");
+        lines.push("      ios_signing:");
+        lines.push("        distribution_type: app_store");
+        lines.push(`        bundle_identifier: ${state.bundleIdentifier.trim()}`);
+      }
+      if (isFlutter()) {
+        lines.push("      flutter: stable");
+      }
+      if (isReactNative()) {
+        lines.push("      node: v22.11.0");
+      }
+      lines.push("      vars:");
+      lines.push(`        XCODE_WORKSPACE: ${yamlQuote(getXcodeConfig().file)}`);
+      lines.push(`        XCODE_SCHEME: ${yamlQuote(getXcodeConfig().scheme)}`);
+
+      const scripts = [];
+
+      if (f.signed) {
+        scripts.push({
+          name: "Set up code signing settings on Xcode project",
+          script: "xcode-project use-profiles",
+        });
+      }
+
+      getDependencyScripts().forEach((s) => scripts.push(s));
+      getPreBuildTestScripts().forEach((s) => scripts.push(s));
+
+      if (f.tests && state.testType === "maestro") {
+        getMaestroScripts().forEach((s) => scripts.push(s));
+      }
+
+      if (f.signed) {
+        scripts.push({
+          name: isFlutter() ? "Flutter build ipa" : "Build ipa for distribution",
+          script: signedBuildScript(),
+        });
+      } else {
+        scripts.push({ name: "Build iOS without code signing", script: unsignedBuildScript() });
+      }
+
+      lines.push("");
+      if (highlightSections.includes("scripts")) lines.push("    # ↳ scripts updated this step");
+      lines.push("    scripts:");
+      scripts.forEach((s) => {
+        lines.push(`      - name: ${s.name}`);
+        if (s.script.includes("\n")) {
+          lines.push("        script: |");
+          lines.push(indentBlock(s.script, 10));
+        } else {
+          lines.push(`        script: ${s.script}`);
+        }
+        if (s.test_report) {
+          lines.push(`        test_report: ${s.test_report}`);
+        }
+      });
+
+      lines.push("");
+      lines.push("    artifacts:");
+      if (f.signed) {
+        lines.push("      - build/ios/ipa/*.ipa");
+      } else if (isFlutter()) {
+        lines.push("      - build/ios/iphoneos/**/*.app");
+      } else {
+        lines.push("      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app");
+      }
+      lines.push("      - /tmp/xcodebuild_logs/*.log");
+
+      if (f.distribute) {
+        lines.push("");
+        if (highlightSections.includes("publishing")) lines.push("    # ↳ added for TestFlight");
+        lines.push("    publishing:");
+        lines.push("      app_store_connect:");
+        lines.push("        auth: integration");
+        lines.push("        submit_to_testflight: true");
+        const groups = state.betaGroups.split(",").map((g) => g.trim()).filter(Boolean);
+        if (groups.length) {
+          lines.push("        beta_groups:");
+          groups.forEach((g) => lines.push(`          - ${g}`));
+        }
+      }
+
+      return lines.join("\n");
+    }
+
+    function buildYaml() {
+      if (!isYamlReady()) {
+        return "";
+      }
+      const f = pipelineFeatures();
+
+      if (isNativeAndroid()) {
+        return buildAndroidYaml(f);
+      }
+      return buildIosYaml(f);
+    }
+
+    function highlightYaml(text) {
+      if (!highlightSections.length) return escapeHtml(text);
+      const markers = ["# ↳ added for signing", "# ↳ added for TestFlight", "# ↳ added for Google Play", "# ↳ scripts updated this step"];
+      return escapeHtml(text)
+        .split("\n")
+        .map((line) => {
+          const decoded = line.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+          if (markers.some((m) => decoded.includes(m)) || decoded.includes("ios_signing:") && highlightSections.includes("ios_signing")) {
+            return `<span class="hl">${line}</span>`;
+          }
+          if (decoded.includes("android_signing:") && highlightSections.includes("android_signing")) {
+            return `<span class="hl">${line}</span>`;
+          }
+          if (decoded.trim().startsWith("integrations:") && highlightSections.includes("integrations")) {
+            return `<span class="hl">${line}</span>`;
+          }
+          if (decoded.includes("app_store_connect:") && highlightSections.includes("publishing") && !decoded.includes("auth:")) {
+            return `<span class="hl">${line}</span>`;
+          }
+          if (decoded.includes("google_play:") && highlightSections.includes("publishing")) {
+            return `<span class="hl">${line}</span>`;
+          }
+          if (decoded.includes("xcode-project use-profiles") && highlightSections.includes("signing_scripts")) {
+            return `<span class="hl">${line}</span>`;
+          }
+          if (decoded.includes("build-ipa") && highlightSections.includes("signing_scripts")) {
+            return `<span class="hl">${line}</span>`;
+          }
+          if (decoded.includes("flutter build ipa") && highlightSections.includes("signing_scripts")) {
+            return `<span class="hl">${line}</span>`;
+          }
+          if (decoded.includes("bundleRelease") && highlightSections.includes("signing_scripts")) {
+            return `<span class="hl">${line}</span>`;
+          }
+          return line;
+        })
+        .join("\n");
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escapeAttr(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;");
+    }
+
+    function escapeTextarea(str) {
+      return String(str ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    }
+
+    function getTestTypeOptions() {
+      if (isAndroidPlatform()) {
+        return [
+          { value: "no", label: "No — skip tests for now" },
+          { value: "gradle", label: "Gradle — unit tests (./gradlew test)" },
+          { value: "appium", label: "Appium — end-to-end tests" },
+          { value: "custom", label: "Something else — custom script" },
+        ];
+      }
+      return [
+        { value: "no", label: "No — skip tests for now" },
+        { value: "xctest", label: "XCTest — unit or UI tests in Xcode" },
+        { value: "maestro", label: "Maestro — UI flows (.maestro/)" },
+        { value: "appium", label: "Appium — end-to-end tests" },
+        { value: "custom", label: "Something else — custom script" },
+      ];
+    }
+
+    function getStageScreens(step) {
+      if (step === 0) {
+        const screens = [
+          {
+            type: "choice",
+            key: "framework",
+            label: "What kind of app are you building?",
+            hint: "Build and signing steps differ by platform. Distribution is TestFlight for iOS and Google Play for Android.",
+            options: [
+              { value: "native", label: "Native iOS — Swift or Objective-C" },
+              { value: "native-android", label: "Native Android — Kotlin or Java" },
+              { value: "react-native", label: "React Native (iOS)" },
+              { value: "flutter", label: "Flutter (iOS)" },
+            ],
+          },
+          { type: "info", id: "repoContext" },
+        ];
+        if (state.framework && isIosPlatform() && !isFlutter()) {
+          screens.push({
+            type: "text",
+            key: "xcodeWorkspace",
+            label: "What is your Xcode workspace or project file?",
+            hint: isReactNative()
+              ? `Prefilled from your repo name (${escapeHtml(getLikelyXcodeWorkspace())}) — edit if it differs. File is usually inside <code>ios/</code>. Change <code>XCODE_SCHEME</code> in the YAML if your scheme name doesn’t match.`
+              : `Prefilled from your repo name (${escapeHtml(getLikelyXcodeWorkspace())}) — edit if it differs. Change <code>XCODE_SCHEME</code> in the YAML if your scheme name doesn’t match.`,
+          });
+        }
+        return screens;
+      }
+      if (step === 1) return [{ type: "info", id: "unsigned" }];
+      if (step === 2) {
+        const repo = getRepoContext();
+        if (isNativeAndroid()) {
+          return [
+            {
+              type: "text",
+              key: "packageName",
+              label: "What is your Android package name?",
+              hint: repo.bundleHint ? `Needed for signing and Play Store. Often something like ${repo.bundleHint}.` : "Must match <code>applicationId</code> in your Gradle config.",
+            },
+            {
+              type: "text",
+              key: "keystoreReference",
+              label: "What is your keystore called in Codemagic?",
+              hint: "The reference name from Team settings → codemagic.yaml settings → Code signing identities → Android keystores.",
+            },
+            { type: "info", id: "androidSigning1" },
+            { type: "info", id: "androidSigning2" },
+            {
+              type: "confirm",
+              key: "credentialsReady",
+              label: "Ready to add signing to your YAML?",
+              hint: "Confirm you’ve uploaded your keystore and wired Gradle <code>signingConfigs</code> to Codemagic’s <code>CM_KEYSTORE_*</code> variables.",
+            },
+          ];
+        }
+        return [
+          { type: "text", key: "bundleIdentifier", label: "What is your app’s bundle identifier?", hint: repo.bundleHint ? `Needed for signing. Often something like ${repo.bundleHint}.` : "Must match your App Store provisioning profile." },
+          { type: "info", id: "signing1" },
+          { type: "info", id: "signing2" },
+          { type: "info", id: "signing3" },
+          { type: "info", id: "signing4" },
+          { type: "info", id: "signing5" },
+          { type: "confirm", key: "credentialsReady", label: "Ready to add signing to your YAML?", hint: "Confirm you’ve uploaded your API key, distribution certificate, and App Store provisioning profile." },
+        ];
+      }
+      if (step === 3) {
+        if (isNativeAndroid()) {
+          return [
+            { type: "info", id: "googlePlaySetup" },
+            { type: "info", id: "signedAndroid" },
+          ];
+        }
+        return [
+          { type: "text", key: "appStoreConnectKeyName", label: "What is your App Store Connect API key called in Codemagic?", hint: "The reference name from Team settings → Team integrations → Developer Portal." },
+          { type: "info", id: "signed" },
+        ];
+      }
+      if (step === 4) {
+        const screens = [
+          { type: "choice", key: "testType", label: "Do you run automated tests in CI?", options: getTestTypeOptions() },
+        ];
+        if (state.testType === "gradle") {
+          screens.push({ type: "info", id: "testsGradle" });
+        }
+        if (state.testType === "xctest") {
+          screens.push({
+            type: "text",
+            key: "testDevice",
+            label: "Which simulator should XCTest use?",
+            hint: 'Defaults to iPhone 16. See the <a href="https://docs.codemagic.io/yaml-testing/testing/#native-ios" target="_blank" rel="noopener">native iOS testing docs</a>.',
+          });
+          screens.push({ type: "info", id: "testsXctest" });
+        }
+        if (state.testType === "maestro") {
+          screens.push({ type: "info", id: "testsMaestro" });
+        }
+        if (state.testType === "appium") {
+          screens.push({ type: "info", id: "appium1" });
+          screens.push({
+            type: "text",
+            key: "appiumInstallCmd",
+            label: "How should we install test dependencies?",
+            hint: "Leave blank to use npm ci. See <a href=\"https://docs.codemagic.io/yaml-testing/testing/#react-native-integration-tests-using-appium-and-emulator\" target=\"_blank\" rel=\"noopener\">Appium on Codemagic</a>.",
+          });
+          screens.push({
+            type: "textarea",
+            key: "appiumTestCommand",
+            label: "What command runs your Appium tests?",
+            hint: "e.g. npx wdio ./wdio.conf.js",
+          });
+          screens.push({ type: "info", id: "testsAppium" });
+        }
+        if (state.testType === "custom") {
+          screens.push({
+            type: "textarea",
+            key: "customTestScript",
+            label: "What shell commands should run your tests?",
+            hint: isAndroidPlatform() ? "Runs before the release build." : "Runs before the IPA build step.",
+          });
+        }
+        if (state.testType && state.testType !== "no") {
+          screens.push({ type: "info", id: "tests" });
+        } else if (state.testType === "no") {
+          screens.push({ type: "info", id: "testsSkip" });
+        }
+        return screens;
+      }
+      if (step === 5) {
+        if (isNativeAndroid()) {
+          return [
+            { type: "text", key: "playTrack", label: "Which Google Play track should receive builds?", hint: 'Common values: <code>internal</code>, <code>alpha</code>, <code>beta</code>, or <code>production</code>.' },
+            { type: "info", id: "googlePlay" },
+          ];
+        }
+        return [
+          { type: "text", key: "betaGroups", label: "Which TestFlight beta groups should receive builds?", hint: "Comma-separated names exactly as they appear in App Store Connect." },
+          { type: "info", id: "testflight" },
+        ];
+      }
+      return [];
+    }
+
+    function currentScreens() {
+      return getStageScreens(state.step);
+    }
+
+    function currentScreen() {
+      const screens = currentScreens();
+      return screens[state.subStep] || screens[0];
+    }
+
+    function renderInfoScreen(id) {
+      const bundle = escapeHtml(state.bundleIdentifier.trim());
+      const infos = {
+        repoContext: (() => {
+          const repo = getRepoContext();
+          const wf = getWorkflowMeta();
+          return `<div class="info-screen">
+            <p class="question-meta">Setup</p>
+            <h2 class="question-heading">We’ll use your connected repository</h2>
+            <p class="question-hint">Workflow ID <code>${escapeHtml(wf.id)}</code> and name <strong>${escapeHtml(wf.name)}</strong> come from your connected repository.</p>
+          </div>`;
+        })(),
+        unsigned: `
+          <div class="info-screen">
+            <h2 class="col-heading">Run an unsigned build first</h2>
+            <p class="stage-desc">${isNativeAndroid()
+              ? "Your workflow sets <code>local.properties</code> and runs <code>./gradlew assembleDebug</code> to verify the project compiles."
+              : isFlutter()
+              ? "Your workflow runs <code>flutter build ios --debug --no-codesign</code> to verify the project compiles."
+              : isReactNative()
+                ? "Your workflow installs npm dependencies, runs CocoaPods in <code>ios/</code>, then compiles without code signing."
+                : "Your workflow compiles without code signing."}${isIosPlatform() ? " The scheme is assumed to match the project filename — edit <code>XCODE_SCHEME</code> in the YAML if yours differs." : ""}</p>
+            <div class="action-box">
+              <strong>Next steps</strong>
+              <ol>
+                <li>Copy <code>codemagic.yaml</code> from the panel on the right.</li>
+                <li>Commit it to your repository root and push:</li>
+              </ol>
+              <pre class="git-snippet">git add codemagic.yaml
+git commit -m 'Add unsigned iOS workflow'
+git push</pre>
+              <ol start="3">
+                <li>Click <strong>Check for configuration files</strong> above, then start a new build.</li>
+                <li>Wait for a green build and check artifacts for a ${isNativeAndroid() ? "<code>.apk</code>" : "<code>.app</code>"} bundle.</li>
+              </ol>
+            </div>
+          </div>`,
+        signing1: `<div class="info-screen"><p class="question-meta">Signing · 1 of 5</p><h2 class="question-heading">Create an App Store Connect API key</h2><p class="question-hint">In App Store Connect go to Users and Access → Integrations → App Store Connect API. Download the <code>.p8</code> file once and note the Issuer ID and Key ID. <a href="https://docs.codemagic.io/yaml-code-signing/signing-ios/" target="_blank" rel="noopener">Docs →</a></p></div>`,
+        signing2: `<div class="info-screen"><p class="question-meta">Signing · 2 of 5</p><h2 class="question-heading">Add the API key to Codemagic</h2><p class="question-hint">Team settings → Team integrations → Developer Portal → Manage keys. Upload your <code>.p8</code> file and give the key a reference name.</p></div>`,
+        signing3: `<div class="info-screen"><p class="question-meta">Signing · 3 of 5</p><h2 class="question-heading">Upload a distribution certificate</h2><p class="question-hint">Team settings → codemagic.yaml settings → Code signing identities → iOS certificates. Upload a <code>.p12</code> or generate a new Apple Distribution certificate.</p></div>`,
+        signing4: `<div class="info-screen"><p class="question-meta">Signing · 4 of 5</p><h2 class="question-heading">Upload an App Store provisioning profile</h2><p class="question-hint">Same page → iOS provisioning profiles. Upload or fetch a profile for <code>${bundle || "your bundle ID"}</code>.</p></div>`,
+        signing5: `<div class="info-screen"><p class="question-meta">Signing · 5 of 5</p><h2 class="question-heading">Verify certificate and profile match</h2><p class="question-hint">The provisioning profile should show a green checkmark next to a matching certificate in Code signing identities.</p></div>`,
+        androidSigning1: `<div class="info-screen"><p class="question-meta">Signing · 1 of 2</p><h2 class="question-heading">Upload your Android keystore</h2><p class="question-hint">Team settings → codemagic.yaml settings → Code signing identities → Android keystores. Upload your <code>.keystore</code> or <code>.jks</code> file with the reference name above. <a href="https://docs.codemagic.io/yaml-code-signing/signing-android/" target="_blank" rel="noopener">Docs →</a></p></div>`,
+        androidSigning2: `<div class="info-screen"><p class="question-meta">Signing · 2 of 2</p><h2 class="question-heading">Wire Gradle to Codemagic signing</h2><p class="question-hint">In <code>app/build.gradle</code>, point <code>signingConfigs.release</code> at <code>CM_KEYSTORE_PATH</code>, <code>CM_KEYSTORE_PASSWORD</code>, <code>CM_KEY_ALIAS</code>, and <code>CM_KEY_PASSWORD</code> when <code>CI=true</code>. See the <a href="https://docs.codemagic.io/yaml-quick-start/building-a-native-android-app/" target="_blank" rel="noopener">native Android quickstart</a>.</p></div>`,
+        googlePlaySetup: `<div class="info-screen"><h2 class="question-heading">Set up Google Play credentials</h2><p class="question-hint">Create a Google Cloud service account with Play Console access. In Codemagic, add a secret variable <code>GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS</code> in a group named <code>google_play</code> (paste the JSON key contents). Needed for build versioning and publishing.</p></div>`,
+        signedAndroid: `<div class="info-screen"><h2 class="col-heading">Run a signed release build</h2><p class="stage-desc">Your YAML now builds a signed <code>.aab</code> with auto-incrementing version codes from Google Play. Commit, push, and start a new build.</p><div class="action-box"><ol><li>Commit the updated <code>codemagic.yaml</code> and push.</li><li>Start a new build with this workflow.</li><li>Confirm a signed <code>.aab</code> appears in artifacts.</li></ol></div></div>`,
+        signed: `<div class="info-screen"><h2 class="col-heading">Run a signed build</h2><p class="stage-desc">Your YAML now includes signing. Commit, push, and start a new build.</p><div class="action-box"><ol><li>Commit the updated <code>codemagic.yaml</code> and push.</li><li>Start a new build with this workflow.</li><li>Confirm a signed <code>.ipa</code> appears in artifacts.</li></ol></div></div>`,
+        testsGradle: `<div class="info-screen"><h2 class="col-heading">Gradle unit tests</h2><p class="stage-desc">Runs <code>./gradlew test</code> before the release build step.</p></div>`,
+        testsSkip: `<div class="info-screen"><h2 class="col-heading">Skipping tests</h2><p class="stage-desc">No test scripts added. You can add them later — see <a href="https://docs.codemagic.io/yaml-testing/testing/" target="_blank" rel="noopener">Running tests</a>.</p></div>`,
+        testsXctest: `<div class="info-screen"><h2 class="col-heading">XCTest on the simulator</h2><p class="stage-desc">Uses <code>xcode-project run-tests</code> before your build. Results appear in the build overview when JUnit XML is published via <code>test_report</code>.</p></div>`,
+        testsMaestro: `<div class="info-screen"><h2 class="col-heading">Maestro on the build machine</h2><p class="stage-desc">The workflow builds a Simulator <code>.app</code>, boots a simulator, installs the app, and runs <code>maestro test</code>. Adjust <code>APP_PATH</code> in the YAML if your build output path differs.</p></div>`,
+        appium1: `<div class="info-screen"><p class="question-meta">Appium</p><h2 class="question-heading">Appium needs a server and a test runner</h2><p class="question-hint">The YAML installs Appium, starts the server in the background, then runs your test command. Make sure your config points at an iOS simulator. <a href="https://docs.codemagic.io/yaml-testing/testing/" target="_blank" rel="noopener">Testing docs →</a></p></div>`,
+        testsAppium: `<div class="info-screen"><h2 class="col-heading">Run Appium tests</h2><p class="stage-desc">Commit, push, and run a build. If Appium fails, check the test command and that your WebdriverIO (or other) config targets iOS.</p></div>`,
+        tests: `<div class="info-screen"><h2 class="col-heading">Run your test build</h2><p class="stage-desc">Test scripts are added before the build step. Commit the YAML, push, and confirm the test step passes in the build log.</p></div>`,
+        testflight: `<div class="info-screen"><h2 class="col-heading">Publish to TestFlight</h2><p class="stage-desc">Publishing uploads your IPA after each successful build.</p><div class="action-box"><ol><li>Commit the final <code>codemagic.yaml</code> and push.</li><li>Run the workflow — publishing happens in post-processing.</li><li>Check App Store Connect → TestFlight for the new build.</li></ol></div></div>`,
+        googlePlay: `<div class="info-screen"><h2 class="col-heading">Publish to Google Play</h2><p class="stage-desc">Publishing uploads your AAB to the selected track after each successful build.</p><div class="action-box"><ol><li>Commit the final <code>codemagic.yaml</code> and push.</li><li>Run the workflow — publishing happens in post-processing.</li><li>Check Google Play Console for the new release.</li></ol></div></div>`,
+      };
+      return infos[id] || "";
+    }
+
+    function renderQuestionScreen(screen, index, total) {
+      const meta = `<p class="question-meta">${getStepLabel(STEPS[state.step])} · ${index + 1} of ${total}</p>`;
+      const key = screen.key;
+      const val = state[key];
+
+      if (screen.type === "text" || screen.type === "number") {
+        const inputType = screen.type === "number" ? "number" : "text";
+        const extra = screen.type === "number" ? 'min="1" max="120"' : "";
+        const placeholder = screen.type === "number" ? "e.g. 60" : "";
+        return `
+          ${meta}
+          <h2 class="question-heading">${screen.label}</h2>
+          ${screen.hint ? `<p class="question-hint">${screen.hint}</p>` : ""}
+          <div class="question-field">
+            <input class="text-input" id="q-input" type="${inputType}" ${extra} placeholder="${screen.key === "xcodeWorkspace" ? getLikelyXcodeWorkspace() : screen.key === "playTrack" ? "internal" : screen.key === "keystoreReference" ? "keystore_reference" : placeholder}" value="${escapeAttr(val)}" autocomplete="off" />
+          </div>`;
+      }
+
+      if (screen.type === "textarea") {
+        return `
+          ${meta}
+          <h2 class="question-heading">${screen.label}</h2>
+          ${screen.hint ? `<p class="question-hint">${screen.hint}</p>` : ""}
+          <div class="question-field">
+            <textarea class="text-input textarea" id="q-input" placeholder="npm test">${escapeTextarea(val)}</textarea>
+          </div>`;
+      }
+
+      if (screen.type === "select") {
+        return `
+          ${meta}
+          <h2 class="question-heading">${screen.label}</h2>
+          ${screen.hint ? `<p class="question-hint">${screen.hint}</p>` : ""}
+          <div class="question-field">
+            <select class="select-input" id="q-input">
+              <option value="" disabled ${!val ? "selected" : ""}>Select…</option>
+              ${screen.options.map((o) => `<option value="${escapeAttr(o.value)}" ${val === o.value ? "selected" : ""}>${o.label}</option>`).join("")}
+            </select>
+          </div>`;
+      }
+
+      if (screen.type === "choice") {
+        return `
+          ${meta}
+          <h2 class="question-heading">${screen.label}</h2>
+          ${screen.hint ? `<p class="question-hint">${screen.hint}</p>` : ""}
+          <div class="choice-list" id="choice-list">
+            ${screen.options.map((o) => {
+              const selected = val === o.value || (typeof o.value === "boolean" && val === o.value);
+              return `<button type="button" class="choice-btn${selected ? " selected" : ""}" data-value="${escapeAttr(String(o.value))}">${o.label}</button>`;
+            }).join("")}
+          </div>
+          <input type="hidden" id="q-input" value="${escapeAttr(val === null || val === undefined ? "" : String(val))}" />`;
+      }
+
+      if (screen.type === "confirm") {
+        return `
+          ${meta}
+          <h2 class="question-heading">${screen.label}</h2>
+          ${screen.hint ? `<p class="question-hint">${screen.hint}</p>` : ""}
+          <label class="checkbox-row">
+            <input type="checkbox" id="q-input" ${state.credentialsReady ? "checked" : ""} />
+            <span>I’ve completed the steps above</span>
+          </label>`;
+      }
+
+      return "";
+    }
+
+    function renderCurrentScreen() {
+      const screens = currentScreens();
+      const screen = screens[state.subStep];
+      if (!screen) return "";
+      const total = screens.length;
+      if (screen.type === "info") return renderInfoScreen(screen.id);
+      return renderQuestionScreen(screen, state.subStep, total);
+    }
+
+    function readCurrentInput() {
+      const panel = document.getElementById("stage-panel");
+      const screen = currentScreen();
+      if (!screen || screen.type === "info") return;
+
+      const el = panel.querySelector("#q-input");
+      if (!el) return;
+
+      if (screen.type === "confirm") {
+        state[screen.key] = el.checked;
+        return;
+      }
+
+      if (screen.type === "number") {
+        state[screen.key] = el.value;
+        return;
+      }
+
+      if (screen.type === "choice") {
+        const raw = el.value;
+        if (raw === "true") state[screen.key] = true;
+        else if (raw === "false") state[screen.key] = false;
+        else state[screen.key] = raw;
+        return;
+      }
+
+      state[screen.key] = el.value;
+    }
+
+    function validateCurrentScreen() {
+      const screen = currentScreen();
+      if (!screen) return null;
+      if (screen.type === "info") return null;
+
+      const key = screen.key;
+      const val = state[key];
+
+      if (screen.type === "confirm") {
+        if (screen.key === "credentialsReady" && !state.credentialsReady) {
+          return isNativeAndroid()
+            ? "Confirm you’ve uploaded your keystore and updated Gradle signing."
+            : "Confirm you’ve completed the signing steps.";
+        }
+        return null;
+      }
+
+      if (screen.type === "choice") {
+        if (val === null || val === undefined || val === "") {
+          return "Choose an option to continue.";
+        }
+        return null;
+      }
+
+      if (screen.type === "select") {
+        if (!String(val ?? "").trim()) return "Select an option to continue.";
+        return null;
+      }
+
+      if (!String(val ?? "").trim()) return "This field is required.";
+
+      if (screen.key === "xcodeWorkspace" && !isValidXcodeFile(val)) {
+        return "Enter a filename ending in .xcworkspace or .xcodeproj.";
+      }
+
+      if (screen.key === "appiumTestCommand" && state.testType === "appium" && !String(val ?? "").trim()) {
+        return "Enter the command that runs your Appium tests.";
+      }
+
+      if (screen.key === "customTestScript" && state.testType === "custom" && !String(val ?? "").trim()) {
+        return "Enter your test script.";
+      }
+
+      return null;
+    }
+
+    function goBack() {
+      readCurrentInput();
+      if (state.subStep > 0) {
+        state.subStep -= 1;
+        return;
+      }
+      if (state.step > 0) {
+        state.step -= 1;
+        state.subStep = Math.max(0, getStageScreens(state.step).length - 1);
+      }
+    }
+
+    function goNext() {
+      readCurrentInput();
+      const err = validateCurrentScreen();
+      if (err) return err;
+
+      const screens = currentScreens();
+      if (state.subStep < screens.length - 1) {
+        state.subStep += 1;
+        return null;
+      }
+
+      if (state.step < STEPS.length - 1) {
+        state.maxStep = Math.max(state.maxStep, state.step + 1);
+        state.step += 1;
+        state.subStep = 0;
+      }
+      return null;
+    }
+
+    function canGoBack() {
+      return state.step > 0 || state.subStep > 0;
+    }
+
+    function isLastScreen() {
+      return state.step === STEPS.length - 1 && state.subStep >= currentScreens().length - 1;
+    }
+
+    function setHighlightForStep(step) {
+      highlightSections = [];
+      if (step === 3) {
+        if (isAndroidPlatform()) {
+          highlightSections = ["android_signing", "signing_scripts"];
+        } else {
+          highlightSections = ["integrations", "ios_signing", "signing_scripts"];
+        }
+      }
+      if (step === 4 && hasConfiguredTests()) highlightSections = ["scripts"];
+      if (step === 5) highlightSections = ["publishing"];
+    }
+
+    function yamlNoteForStep(step) {
+      const distributeLabel = isAndroidPlatform() ? "Google Play publishing" : "TestFlight publishing";
+      const signedNote = isAndroidPlatform()
+        ? "Signing and AAB build added to your workflow."
+        : "Signing and IPA build added to your workflow.";
+      const notes = [
+        "Answer each question — your workflow appears on the right.",
+        "Unsigned workflow — compile check only.",
+        "YAML unchanged while you set up signing in the UI.",
+        signedNote,
+        hasConfiguredTests() ? "Test scripts added before the build." : "No test scripts added.",
+        `${distributeLabel} added.`,
+      ];
+      return notes[step] || "";
+    }
+
+    function renderStepper() {
+      const el = document.getElementById("stepper");
+      el.innerHTML = STEPS.map((s, i) => {
+        const cls = [
+          "step-pill",
+          i === state.step ? "active" : "",
+          i < state.maxStep || i < state.step ? "done" : "",
+        ].filter(Boolean).join(" ");
+        const disabled = i > state.maxStep + 1 ? "disabled" : "";
+        return `<button type="button" class="${cls}" data-step="${i}" ${disabled} aria-current="${i === state.step ? "step" : "false"}">
+          <span class="num">${i + 1}</span>${getStepLabel(s)}
+        </button>`;
+      }).join("");
+      el.querySelectorAll(".step-pill").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const target = +btn.dataset.step;
+          if (target <= state.maxStep + 1) {
+            readCurrentInput();
+            state.step = target;
+            state.subStep = 0;
+            saveState();
+            render();
+          }
+        });
+      });
+    }
+
+    function bindScreenEvents() {
+      const panel = document.getElementById("stage-panel");
+      const screen = currentScreen();
+      if (!screen || screen.type === "info") return;
+
+      const input = panel.querySelector("#q-input");
+      if (input && screen.type !== "choice") {
+        input.addEventListener("input", () => {
+          readCurrentInput();
+          renderYaml();
+          saveState();
+        });
+        input.addEventListener("change", () => {
+          readCurrentInput();
+          renderYaml();
+          saveState();
+        });
+        if (input.tagName === "INPUT" || input.tagName === "TEXTAREA") {
+          setTimeout(() => input.focus(), 0);
+        }
+      }
+
+      panel.querySelectorAll(".choice-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const raw = btn.dataset.value;
+          const hidden = panel.querySelector("#q-input");
+          if (hidden) hidden.value = raw;
+          if (raw === "true") state[screen.key] = true;
+          else if (raw === "false") state[screen.key] = false;
+          else state[screen.key] = raw;
+          if (screen.key === "framework") ensureLikelyXcodeWorkspace();
+          panel.querySelectorAll(".choice-btn").forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          saveState();
+          if (screen.key === "framework") {
+            render();
+          } else {
+            renderYaml();
+          }
+        });
+      });
+    }
+
+    function renderStage() {
+      const screens = currentScreens();
+      if (state.subStep >= screens.length) state.subStep = Math.max(0, screens.length - 1);
+
+      const screen = screens[state.subStep];
+      if (screen?.key === "xcodeWorkspace") ensureLikelyXcodeWorkspace();
+
+      const panel = document.getElementById("stage-panel");
+      panel.innerHTML = renderCurrentScreen() + `
+        <div class="nav-row">
+          <button type="button" class="btn btn-secondary" id="back-btn" ${canGoBack() ? "" : "disabled"}>Back</button>
+          <button type="button" class="btn btn-primary" id="next-btn">${isLastScreen() ? "Finish" : "Continue"}</button>
+        </div>
+        <div class="field-error" id="step-error" role="alert"></div>
+      `;
+      bindScreenEvents();
+
+      document.getElementById("back-btn").addEventListener("click", () => {
+        goBack();
+        saveState();
+        render();
+      });
+
+      document.getElementById("next-btn").addEventListener("click", () => {
+        const err = goNext();
+        const errEl = document.getElementById("step-error");
+        if (err) {
+          errEl.textContent = err;
+          return;
+        }
+        errEl.textContent = "";
+        saveState();
+        render();
+      });
+    }
+
+    function renderYaml() {
+      setHighlightForStep(state.step);
+      const output = document.getElementById("yaml-output");
+      const note = document.getElementById("yaml-note");
+      const copyBtn = document.getElementById("copy-btn");
+      const downloadBtn = document.getElementById("download-btn");
+
+      if (!isYamlReady()) {
+        output.classList.add("is-empty");
+        output.textContent = yamlPlaceholderMessage();
+        note.textContent = state.step === 0
+          ? "Answer the setup questions on the left."
+          : yamlNoteForStep(state.step);
+        copyBtn.disabled = true;
+        downloadBtn.disabled = true;
+        return;
+      }
+
+      output.classList.remove("is-empty");
+      const yaml = buildYaml();
+      output.innerHTML = highlightYaml(yaml);
+      note.textContent = yamlNoteForStep(state.step);
+      copyBtn.disabled = false;
+      downloadBtn.disabled = false;
+    }
+
+    function render() {
+      renderStepper();
+      renderStage();
+      renderYaml();
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("visible");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => t.classList.remove("visible"), 2200);
+    }
+
+    document.getElementById("copy-btn").addEventListener("click", async () => {
+      readCurrentInput();
+      if (!isYamlReady()) {
+        showToast("Finish setup first");
+        return;
+      }
+      const yaml = buildYaml();
+      try {
+        await navigator.clipboard.writeText(yaml);
+        showToast("Copied to clipboard");
+      } catch (_) {
+        showToast("Copy failed — select YAML manually");
+      }
+    });
+
+    document.getElementById("download-btn").addEventListener("click", () => {
+      readCurrentInput();
+      if (!isYamlReady()) {
+        showToast("Finish setup first");
+        return;
+      }
+      const yaml = buildYaml();
+      const blob = new Blob([yaml], { type: "text/yaml" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "codemagic.yaml";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast("Downloaded codemagic.yaml");
+    });
+
+    loadState();
+    render();
+  </script>
+</body>
+</html>

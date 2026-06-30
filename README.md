@@ -10,7 +10,7 @@ Compare estimated monthly costs for **Codemagic**, **GitHub Actions**, and **Bit
 
 **OTA updates (Codemagic CodePush vs Expo EAS Update):** [zgoldie.github.io/cicd-calculator/ota.html](https://zgoldie.github.io/cicd-calculator/ota.html)
 
-**Simple CI/CD (mobile defaults):** [zgoldie.github.io/cicd-calculator/simple.html](https://zgoldie.github.io/cicd-calculator/simple.html)
+**codemagic.yaml builder (iOS & Android):** [zgoldie.github.io/cicd-calculator/yaml-builder.html](https://zgoldie.github.io/cicd-calculator/yaml-builder.html)
 
 **Simple CI/CD (mobile defaults):** [zgoldie.github.io/cicd-calculator/simple.html](https://zgoldie.github.io/cicd-calculator/simple.html)
 
@@ -23,7 +23,7 @@ No install, login, or build step. Works offline locally. Keep `favicon.svg` in t
 - `index.html` — CI/CD comparison calculator (HTML, CSS, JS)
 - `burstable.html` — Codemagic burstable concurrency estimate (typical p95 + burst spike)
 - `ota.html` — OTA update pricing (Codemagic CodePush vs Expo EAS Update)
-- `simple.html` — simplified CI/CD calculator (releases = iOS + Android, fixed 50/50 mix)
+- `yaml-builder.html` — staged `codemagic.yaml` wizard (unsigned → signing → tests → distribution)
 - `simple.html` — simplified CI/CD calculator (releases = iOS + Android, fixed 50/50 mix)
 - `favicon.svg` — Codemagic star icon for the browser tab
 
